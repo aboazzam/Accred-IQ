@@ -1,0 +1,594 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/client"
+}
+
+// =========================================================
+// ENUMS
+// =========================================================
+
+enum Action {
+  READ
+  WRITE
+  EDIT
+  APPROVE
+  AI_GENERATE
+}
+
+enum PermissionScope {
+  OWN        // على مستوى الملكية الشخصية
+  DEPARTMENT // على مستوى القسم
+  COLLEGE    // على مستوى الكلية
+  UNIVERSITY // على مستوى الجامعة كاملة
+}
+
+// =========================================================
+// ROLES — الأدوار الأكاديمية
+// =========================================================
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  nameAr      String   @unique
+  code        String   @unique
+  description String?
+  isSystem    Boolean  @default(false) // الأدوار الأساسية محمية من الحذف
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+  permissions Permission[]
+
+  @@map("roles")
+}
+
+// =========================================================
+// USERS — المستخدمون
+// =========================================================
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String   // bcrypt hashed — لا تُخزن كلمات المرور بالنص الصريح أبداً
+  isActive  Boolean  @default(true)
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  auditLogs           AuditLog[]
+  deanOfColleges      College[]             @relation("CollegeDean")
+  headOfDepartments   Department[]          @relation("DepartmentHead")
+  directedPrograms    Program[]             @relation("ProgramDirector")
+  taughtCourses       Course[]              @relation("CourseInstructor")
+  uploadedArtifacts   CourseArtifact[]      @relation("ArtifactUploader")
+  attainmentCalcs     CloAttainmentResult[] @relation("AttainmentCalculator")
+
+  @@index([email])
+  @@index([roleId])
+  @@map("users")
+}
+
+// =========================================================
+// PERMISSIONS MATRIX — مصفوفة الصلاحيات
+// الربط الدقيق بين كل دور والعمليات المسموح بها
+// على مستوى المورد والحقل والنطاق
+// =========================================================
+
+model Permission {
+  id       String          @id @default(uuid())
+  roleId   String
+  role     Role            @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  resource String          // اسم المورد: 'standard' | 'course' | 'program' | 'report' | 'user' ...
+  action   Action          // العملية: READ | WRITE | EDIT | APPROVE | AI_GENERATE
+  scope    PermissionScope @default(OWN)
+  field    String?         // null = صلاحية على المورد كاملاً | قيمة = صلاحية على حقل بعينه
+  allowed  Boolean         @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roleId, resource, action, scope, field])
+  @@index([roleId])
+  @@index([resource, action])
+  @@map("permissions")
+}
+
+// =========================================================
+// COMPETENCY LEVELS — مستويات الجدارة الديناميكية
+// يتحكم فيها مدير النظام بالكامل (عدد المستويات + أوزانها)
+// =========================================================
+
+model CompetencyLevel {
+  id          String   @id @default(uuid())
+  name        String
+  nameAr      String
+  code        String   @unique
+  weight      Float    // الوزن النسبي كنسبة مئوية مثل: 25.0 = 25%
+  description String?
+  order       Int      // ترتيب العرض (1 = الأدنى)
+  color       String?  // كود اللون للواجهة مثل: '#3B82F6'
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plos ProgramLearningOutcome[] @relation("PloTargetLevel")
+  clos CourseLearningOutcome[]  @relation("CloTargetLevel")
+
+  @@index([order])
+  @@index([isActive])
+  @@map("competency_levels")
+}
+
+// =========================================================
+// PHASE 2 ENUMS — المرحلة الثانية
+// =========================================================
+
+enum LearningDomain {
+  KNOWLEDGE          // المعرفة والفهم
+  SKILLS             // المهارات العملية والتطبيقية
+  VALUES             // القيم والسلوك المهني والأخلاقي
+  COMMUNICATION      // مهارات التواصل والتعاون
+  CRITICAL_THINKING  // التفكير الناقد وحل المشكلات
+}
+
+enum AlignmentLevel {
+  DIRECT    // ارتباط مباشر (3 نقاط)
+  PARTIAL   // ارتباط جزئي (2 نقطة)
+  INDIRECT  // ارتباط غير مباشر (1 نقطة)
+  NONE      // لا يوجد ارتباط (0 نقطة)
+}
+
+enum AccreditationStatus {
+  NOT_STARTED   // لم يبدأ
+  IN_PROGRESS   // جاري العمل
+  SUBMITTED     // مُقدَّم للهيئة
+  CONDITIONAL   // اعتماد مشروط
+  ACCREDITED    // معتمد
+  EXPIRED       // انتهت صلاحيته
+}
+
+enum ProgramLevel {
+  DIPLOMA     // دبلوم
+  BACHELOR    // بكالوريوس
+  MASTER      // ماجستير
+  DOCTORATE   // دكتوراه
+}
+
+// =========================================================
+// COLLEGES — الكليات
+// =========================================================
+
+model College {
+  id        String   @id @default(uuid())
+  name      String
+  nameAr    String
+  code      String   @unique
+  deanId    String?
+  dean      User?    @relation("CollegeDean", fields: [deanId], references: [id])
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  departments Department[]
+
+  @@index([code])
+  @@map("colleges")
+}
+
+// =========================================================
+// DEPARTMENTS — الأقسام الأكاديمية
+// =========================================================
+
+model Department {
+  id        String   @id @default(uuid())
+  name      String
+  nameAr    String
+  code      String   @unique
+  collegeId String
+  college   College  @relation(fields: [collegeId], references: [id])
+  headId    String?
+  head      User?    @relation("DepartmentHead", fields: [headId], references: [id])
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  programs Program[]
+
+  @@index([collegeId])
+  @@map("departments")
+}
+
+// =========================================================
+// PROGRAMS — البرامج الأكاديمية
+// =========================================================
+
+model Program {
+  id                 String              @id @default(uuid())
+  name               String
+  nameAr             String
+  code               String              @unique
+  level              ProgramLevel        @default(BACHELOR)
+  totalCreditHours   Int
+  departmentId       String
+  department         Department          @relation(fields: [departmentId], references: [id])
+  directorId         String?
+  director           User?               @relation("ProgramDirector", fields: [directorId], references: [id])
+  accreditationBody  String?             // مثل: NCAAA, ABET, ACBSP
+  accreditationStatus AccreditationStatus @default(NOT_STARTED)
+  accreditationExpiry DateTime?
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  courses Course[]
+  plos    ProgramLearningOutcome[]
+
+  @@index([departmentId])
+  @@index([accreditationStatus])
+  @@map("programs")
+}
+
+// =========================================================
+// COURSES — المقررات الدراسية
+// =========================================================
+
+model Course {
+  id           String   @id @default(uuid())
+  code         String   @unique  // مثل: CS101, MATH201
+  name         String
+  nameAr       String
+  creditHours  Int
+  programId    String
+  program      Program  @relation(fields: [programId], references: [id])
+  instructorId String?
+  instructor   User?    @relation("CourseInstructor", fields: [instructorId], references: [id])
+  semester     String?  // مثل: الفصل الأول، الفصل الثاني
+  academicYear String?  // مثل: 2024-2025
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  clos                CourseLearningOutcome[]
+  assessments         AssessmentMethod[]
+  artifacts           CourseArtifact[]
+  indirectAssessments IndirectAssessment[]
+  attainmentResults   CloAttainmentResult[]
+
+  @@index([programId])
+  @@index([instructorId])
+  @@map("courses")
+}
+
+// =========================================================
+// PROGRAM LEARNING OUTCOMES (PLOs) — مخرجات تعلم البرنامج
+// =========================================================
+
+model ProgramLearningOutcome {
+  id               String          @id @default(uuid())
+  code             String          // مثل: PLO-1, PLO-2
+  description      String
+  descriptionAr    String
+  domain           LearningDomain
+  targetLevelId    String?         // مستوى الجدارة المستهدف
+  targetLevel      CompetencyLevel? @relation("PloTargetLevel", fields: [targetLevelId], references: [id])
+  programId        String
+  program          Program         @relation(fields: [programId], references: [id], onDelete: Cascade)
+  order            Int             @default(0)
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  mappings PloCloPloMapping[]
+
+  @@unique([programId, code])
+  @@index([programId])
+  @@index([domain])
+  @@map("program_learning_outcomes")
+}
+
+// =========================================================
+// COURSE LEARNING OUTCOMES (CLOs) — مخرجات تعلم المقرر
+// =========================================================
+
+model CourseLearningOutcome {
+  id             String          @id @default(uuid())
+  code           String          // مثل: CLO-1, CLO-2
+  description    String
+  descriptionAr  String
+  domain         LearningDomain
+  targetLevelId  String?
+  targetLevel    CompetencyLevel? @relation("CloTargetLevel", fields: [targetLevelId], references: [id])
+  courseId       String
+  course         Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  order          Int             @default(0)
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  targetBenchmark      Float  @default(70) // % المستهدفة من الطلاب الذين يُحققون المخرج
+  achievementThreshold Float  @default(60) // الحد الأدنى لنسبة الدرجة لاعتبار الطالب محققاً
+
+  mappings          PloCloPloMapping[]
+  assessmentItems   AssessmentItem[]
+  indirectItems     IndirectAssessmentItem[]
+  attainmentResults CloAttainmentResult[]
+
+  @@unique([courseId, code])
+  @@index([courseId])
+  @@index([domain])
+  @@map("course_learning_outcomes")
+}
+
+// =========================================================
+// PLO-CLO MAPPING MATRIX — مصفوفة الربط
+// تُحدد درجة الارتباط بين كل مخرج برنامج ومخرج مقرر
+// =========================================================
+
+model PloCloPloMapping {
+  id             String         @id @default(uuid())
+  ploId          String
+  plo            ProgramLearningOutcome @relation(fields: [ploId], references: [id], onDelete: Cascade)
+  cloId          String
+  clo            CourseLearningOutcome  @relation(fields: [cloId], references: [id], onDelete: Cascade)
+  alignmentLevel AlignmentLevel @default(NONE)
+  alignmentWeight Int           @default(0) // 0=NONE, 1=INDIRECT, 2=PARTIAL, 3=DIRECT
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([ploId, cloId])
+  @@index([ploId])
+  @@index([cloId])
+  @@map("plo_clo_mapping")
+}
+
+// =========================================================
+// PHASE 3 ENUMS — التقييم والأدلة
+// =========================================================
+
+enum AssessmentType {
+  MIDTERM       // اختبار منتصف الفصل
+  FINAL         // الاختبار النهائي
+  QUIZ          // اختبار قصير
+  ASSIGNMENT    // واجب منزلي
+  PROJECT       // مشروع
+  PRESENTATION  // عرض تقديمي
+  LAB           // تقرير مخبري
+}
+
+enum ArtifactCategory {
+  HIGHEST   // عينة الدرجة الأعلى
+  AVERAGE   // عينة الدرجة المتوسطة
+  LOWEST    // عينة الدرجة الأدنى
+  RUBRIC    // مصفوفة التقييم
+  SOLUTION  // نموذج الإجابة النموذجي
+}
+
+enum IndirectAssessmentType {
+  STUDENT_SURVEY   // استبانة رأي الطلاب
+  ALUMNI_SURVEY    // استبانة الخريجين
+  EMPLOYER_SURVEY  // استبانة أصحاب العمل
+  EXIT_SURVEY      // استبانة الخروج
+}
+
+// =========================================================
+// ASSESSMENT METHODS — أدوات التقييم
+// مرتبطة بالمقرر، تحدد النوع والوزن والدرجة الكلية
+// =========================================================
+
+model AssessmentMethod {
+  id              String         @id @default(uuid())
+  courseId        String
+  course          Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  type            AssessmentType
+  name            String
+  nameAr          String
+  weight          Float          // الوزن في درجة المقرر الكلية مثل 30.0 = 30%
+  maxScore        Float          // الدرجة الكلية للأداة
+  semester        String?
+  academicYear    String?
+  conductedAt     DateTime?      // تاريخ إجراء التقييم
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  items     AssessmentItem[]
+  artifacts CourseArtifact[]
+
+  @@index([courseId])
+  @@index([type])
+  @@map("assessment_methods")
+}
+
+// =========================================================
+// ASSESSMENT ITEMS — عناصر/أسئلة التقييم
+// كل سؤال/عنصر مرتبط بـ CLO واحد مع درجته المستحقة
+// =========================================================
+
+model AssessmentItem {
+  id           String               @id @default(uuid())
+  assessmentId String
+  assessment   AssessmentMethod     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  cloId        String
+  clo          CourseLearningOutcome @relation(fields: [cloId], references: [id])
+  label        String               // مثل: السؤال الأول, الجزء أ
+  maxScore     Float                // الدرجة القصوى لهذا العنصر
+  order        Int                  @default(0)
+  createdAt    DateTime             @default(now())
+
+  grades StudentGrade[]
+
+  @@index([assessmentId])
+  @@index([cloId])
+  @@map("assessment_items")
+}
+
+// =========================================================
+// STUDENT GRADES — درجات الطلاب
+// تسجيل درجة كل طالب في كل عنصر تقييمي
+// أساس حساب التحقيق المباشر (Direct Attainment)
+// =========================================================
+
+model StudentGrade {
+  id               String         @id @default(uuid())
+  assessmentItemId String
+  assessmentItem   AssessmentItem @relation(fields: [assessmentItemId], references: [id], onDelete: Cascade)
+  studentId        String         // الرقم الأكاديمي للطالب
+  studentName      String?
+  score            Float          // الدرجة الفعلية (0 → maxScore)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@unique([assessmentItemId, studentId])
+  @@index([assessmentItemId])
+  @@index([studentId])
+  @@map("student_grades")
+}
+
+// =========================================================
+// COURSE ARTIFACTS — ملفات الأدلة الأكاديمية
+// عينات أعمال الطلاب لملف المقرر (Course File)
+// =========================================================
+
+model CourseArtifact {
+  id             String          @id @default(uuid())
+  courseId       String
+  course         Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  assessmentId   String?
+  assessment     AssessmentMethod? @relation(fields: [assessmentId], references: [id])
+  category       ArtifactCategory
+  title          String
+  description    String?
+  fileUrl        String          // رابط الملف في التخزين السحابي
+  mimeType       String?         // مثل: application/pdf
+  fileSizeKb     Int?
+  studentId      String?         // الرقم الأكاديمي للطالب (مجهول الهوية)
+  uploadedById   String
+  uploadedBy     User            @relation("ArtifactUploader", fields: [uploadedById], references: [id])
+  academicYear   String?
+  semester       String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([courseId])
+  @@index([assessmentId])
+  @@index([category])
+  @@map("course_artifacts")
+}
+
+// =========================================================
+// INDIRECT ASSESSMENTS — الاستبانات والتقييم غير المباشر
+// =========================================================
+
+model IndirectAssessment {
+  id            String                 @id @default(uuid())
+  courseId      String
+  course        Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  type          IndirectAssessmentType
+  title         String
+  semester      String
+  academicYear  String
+  responseCount Int                    @default(0) // عدد المستجيبين
+  conductedAt   DateTime?
+  isActive      Boolean                @default(true)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  items IndirectAssessmentItem[]
+
+  @@index([courseId])
+  @@index([type])
+  @@map("indirect_assessments")
+}
+
+// =========================================================
+// INDIRECT ASSESSMENT ITEMS — عناصر الاستبانة
+// كل سؤال في الاستبانة مرتبط بـ CLO ويحمل متوسط الدرجة
+// =========================================================
+
+model IndirectAssessmentItem {
+  id           String                @id @default(uuid())
+  surveyId     String
+  survey       IndirectAssessment    @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  cloId        String?
+  clo          CourseLearningOutcome? @relation(fields: [cloId], references: [id])
+  question     String
+  questionAr   String?
+  averageScore Float                 // متوسط درجات المستجيبين (Likert scale)
+  maxScore     Float                 @default(5) // الحد الأقصى (مقياس ليكرت عادةً 5)
+  createdAt    DateTime              @default(now())
+
+  @@index([surveyId])
+  @@index([cloId])
+  @@map("indirect_assessment_items")
+}
+
+// =========================================================
+// CLO ATTAINMENT RESULTS — نتائج تحقيق مخرجات التعلم
+// جدول مخزن مؤقتاً لتسريع توليد التقارير
+// يُحسب ويُحدث تلقائياً عند رفع الدرجات
+// =========================================================
+
+model CloAttainmentResult {
+  id                 String                @id @default(uuid())
+  cloId              String
+  clo                CourseLearningOutcome @relation(fields: [cloId], references: [id], onDelete: Cascade)
+  courseId           String
+  course             Course                @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  semester           String
+  academicYear       String
+  studentCount       Int                   // عدد الطلاب المقيَّمين
+  studentsAchieving  Int                   // عدد الطلاب المحققين
+  directAttainment   Float                 // نسبة التحقيق المباشر %
+  indirectAttainment Float?                // نسبة التحقيق غير المباشر %
+  overallAttainment  Float                 // التحقيق الإجمالي = 80% + 20%
+  achievementThreshold Float               // الحد المستخدم عند الحساب
+  targetBenchmark    Float                 // الحد المستهدف
+  calculatedAt       DateTime              @default(now())
+  calculatedById     String?
+  calculatedBy       User?                 @relation("AttainmentCalculator", fields: [calculatedById], references: [id])
+
+  @@unique([cloId, semester, academicYear])
+  @@index([courseId])
+  @@index([academicYear, semester])
+  @@map("clo_attainment_results")
+}
+
+// =========================================================
+// AUDIT TRAIL — سجل العمليات الشامل
+// يُسجل كل حركة في النظام دون استثناء
+// =========================================================
+
+model AuditLog {
+  id              String   @id @default(uuid())
+  userId          String?  // null للعمليات الآلية للنظام
+  user            User?    @relation(fields: [userId], references: [id])
+
+  action          String   // 'CREATE' | 'UPDATE' | 'DELETE' | 'LOGIN' | 'LOGOUT' | 'APPROVE' | 'REJECT' | 'AI_GENERATE'
+  targetTable     String   // الجدول المستهدف
+  targetId        String?  // معرف السجل المستهدف
+  targetComponent String   // المكون البرمجي / الميكروسيرفيس
+
+  oldValues       Json?    // الحالة السابقة (قبل التعديل)
+  newValues       Json?    // الحالة الجديدة (بعد التعديل)
+
+  ipAddress       String?
+  userAgent       String?
+  metadata        Json?    // بيانات سياقية إضافية
+
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([targetTable, targetId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
