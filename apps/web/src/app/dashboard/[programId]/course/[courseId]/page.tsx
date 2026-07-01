@@ -38,7 +38,7 @@ export default function CoursePage() {
   const activeTab    = searchParams.get('tab') ?? 'overview';
 
   const user = getUser();
-  const { dir } = useLang();
+  const { lang, dir } = useLang();
   const [course,  setCourse]  = useState<Course | null>(null);
   const [clos,    setClos]    = useState<CLO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +84,7 @@ export default function CoursePage() {
                 <BookOpen className="w-3.5 h-3.5 text-cyan-400" />
                 <span className="text-[10px] font-bold text-cyan-400">مقرر دراسي</span>
               </div>
-              <p className="text-white text-xs font-bold leading-snug">{course.nameAr}</p>
+              <p className="text-white text-xs font-bold leading-snug">{lang === 'ar' ? course.nameAr : course.name}</p>
               <p className="text-slate-500 text-[10px] mt-0.5 font-mono" dir="ltr">
                 {course.code} · {course.creditHours} ساعات
               </p>
@@ -153,7 +153,7 @@ export default function CoursePage() {
               المقررات
             </Link>
             <span className="text-slate-600">›</span>
-            <span className="text-white font-semibold">{course?.nameAr ?? '...'}</span>
+            <span className="text-white font-semibold">{(lang === 'ar' ? course?.nameAr : course?.name) ?? '...'}</span>
           </div>
         </header>
 
@@ -190,6 +190,7 @@ function CourseOverviewTab({
 }: {
   course: Course; clos: CLO[]; programId: string; courseId: string;
 }) {
+  const { lang } = useLang();
   const stats = [
     { val: clos.length,                    label: 'مخرج تعلم CLO', icon: Target,       color: 'from-cyan-700 to-cyan-500'   },
     { val: course.creditHours,             label: 'ساعة معتمدة',   icon: BookOpen,     color: 'from-brand-600 to-brand-500' },
@@ -205,8 +206,8 @@ function CourseOverviewTab({
     <div className="space-y-8">
       {/* Title */}
       <div>
-        <h1 className="text-xl font-black text-white mb-0.5">{course.nameAr}</h1>
-        <p className="text-slate-400 text-sm" dir="ltr">{course.name}</p>
+        <h1 className="text-xl font-black text-white mb-0.5">{lang === 'ar' ? course.nameAr : course.name}</h1>
+        <p className="text-slate-400 text-sm" dir={lang === 'ar' ? 'ltr' : 'rtl'}>{lang === 'ar' ? course.name : course.nameAr}</p>
       </div>
 
       {/* Stat cards */}

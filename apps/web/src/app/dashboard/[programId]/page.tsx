@@ -43,7 +43,7 @@ export default function ProgramDashboardPage() {
   const activeTab    = searchParams.get('tab') ?? 'overview';
 
   const user = getUser();
-  const { dir } = useLang();
+  const { lang, dir } = useLang();
   const [program,  setProgram]  = useState<Program | null>(null);
   const [courses,  setCourses]  = useState<Course[]>([]);
   const [plos,     setPlos]     = useState<PLO[]>([]);
@@ -102,7 +102,7 @@ export default function ProgramDashboardPage() {
                 <AccIcon className={`w-3.5 h-3.5 ${accStatus.color}`} />
                 <span className={`text-[10px] font-bold ${accStatus.color}`}>{accStatus.label}</span>
               </div>
-              <p className="text-white text-xs font-bold leading-tight">{program.nameAr}</p>
+              <p className="text-white text-xs font-bold leading-tight">{lang === 'ar' ? program.nameAr : program.name}</p>
               <p className="text-slate-500 text-[10px] mt-0.5 font-mono">{program.code} · {LEVEL_AR[program.level]}</p>
             </div>
           )}
@@ -160,7 +160,7 @@ export default function ProgramDashboardPage() {
               <ChevronRight className="w-3.5 h-3.5" /> البرامج
             </Link>
             <span className="text-slate-600">›</span>
-            <span className="text-white font-semibold">{program?.nameAr ?? '...'}</span>
+            <span className="text-white font-semibold">{(lang === 'ar' ? program?.nameAr : program?.name) ?? '...'}</span>
           </div>
           <Link href={`/api/reports/programs/${programId}/plo-attainment?academicYear=2024-2025`}
             target="_blank"
@@ -201,6 +201,7 @@ export default function ProgramDashboardPage() {
 
 // ── Overview Tab ──
 function OverviewTab({ program, courses, plos }: { program: Program; courses: Course[]; plos: PLO[] }) {
+  const { lang } = useLang();
   const stats = [
     { val: courses.length, label: 'مقرر دراسي', icon: BookOpen,      color: 'from-cyan-700 to-cyan-500' },
     { val: plos.length,    label: 'مخرج برنامج', icon: Target,        color: 'from-brand-600 to-brand-500' },
@@ -211,8 +212,8 @@ function OverviewTab({ program, courses, plos }: { program: Program; courses: Co
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-black text-white mb-0.5">{program.nameAr}</h1>
-        <p className="text-slate-400 text-sm" dir="ltr">{program.name}</p>
+        <h1 className="text-xl font-black text-white mb-0.5">{lang === 'ar' ? program.nameAr : program.name}</h1>
+        <p className="text-slate-400 text-sm" dir={lang === 'ar' ? 'ltr' : 'rtl'}>{lang === 'ar' ? program.name : program.nameAr}</p>
       </div>
 
       {/* Stats */}
@@ -571,6 +572,7 @@ function PloCloDetails({
 
 // ── Courses Tab ──
 function CoursesTab({ courses, programId, plos, onAdd }: { courses: Course[]; programId: string; plos: PLO[]; onAdd: (c: Course) => void }) {
+  const { lang } = useLang();
   const [showModal, setShowModal] = useState(false);
   const [saving,    setSaving]    = useState(false);
   const [apiError,  setApiError]  = useState('');
@@ -745,7 +747,7 @@ function CoursesTab({ courses, programId, plos, onAdd }: { courses: Course[]; pr
                 <BookOpen className="w-4 h-4 text-cyan-400" />
               </div>
               <div className="flex-1">
-                <p className="text-white font-bold text-sm">{course.nameAr}</p>
+                <p className="text-white font-bold text-sm">{lang === 'ar' ? course.nameAr : course.name}</p>
                 <p className="text-slate-400 text-xs font-mono" dir="ltr">{course.code}</p>
               </div>
             </div>

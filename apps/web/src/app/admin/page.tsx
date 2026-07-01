@@ -275,7 +275,7 @@ function OverviewTab({
   courses: Course[];
   setTab: (t: string) => void;
 }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const statCards = [
     { val: stats.totalPrograms,   label: t('statPrograms'),   icon: Building2,     color: 'from-brand-600 to-brand-500',  tab: 'programs' },
     { val: stats.totalCourses,    label: t('statCourses'),    icon: BookOpen,      color: 'from-cyan-700 to-cyan-500',    tab: 'courses'  },
@@ -352,7 +352,7 @@ function OverviewTab({
                     <GraduationCap className="w-4 h-4 text-brand-300" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white text-xs font-semibold truncate">{p.nameAr}</p>
+                    <p className="text-white text-xs font-semibold truncate">{lang === 'ar' ? p.nameAr : p.name}</p>
                     <p className="text-purple-300/50 text-[10px] font-mono">{p.code} · {LEVEL_AR[p.level] ?? p.level}</p>
                   </div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${st.badge}`}>{st.label}</span>
@@ -410,6 +410,7 @@ function ProgramsTab({
   departments: Department[];
   onAdd: (p: Program) => void;
 }) {
+  const { lang } = useLang();
   const [showModal, setShowModal] = useState(false);
   const [saving,    setSaving]    = useState(false);
   const [apiError,  setApiError]  = useState('');
@@ -615,8 +616,8 @@ function ProgramsTab({
 
               {/* Info */}
               <div className="flex-1">
-                <p className="text-white font-bold text-sm leading-snug">{prog.nameAr}</p>
-                <p className="text-purple-300/50 text-xs mt-0.5" dir="ltr">{prog.name}</p>
+                <p className="text-white font-bold text-sm leading-snug">{lang === 'ar' ? prog.nameAr : prog.name}</p>
+                <p className="text-purple-300/50 text-xs mt-0.5" dir={lang === 'ar' ? 'ltr' : 'rtl'}>{lang === 'ar' ? prog.name : prog.nameAr}</p>
                 <div className="flex items-center gap-3 mt-2 flex-wrap">
                   <span className="text-[10px] text-purple-300/50">{LEVEL_AR[prog.level] ?? prog.level}</span>
                   <span className="text-purple-300/20">·</span>
@@ -677,7 +678,7 @@ function CoursesTab({
   loading: boolean;
   onAdd: (c: Course) => void;
 }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const programMap = useMemo(() =>
     Object.fromEntries(programs.map(p => [p.id, p])), [programs]);
 
@@ -931,15 +932,15 @@ function CoursesTab({
                           <BookOpen className="w-3.5 h-3.5 text-cyan-400" />
                         </div>
                         <div>
-                          <p className="text-white text-xs font-semibold">{c.nameAr}</p>
-                          <p className="text-purple-300/40 text-[10px]" dir="ltr">{c.name}</p>
+                          <p className="text-white text-xs font-semibold">{lang === 'ar' ? c.nameAr : c.name}</p>
+                          <p className="text-purple-300/40 text-[10px]" dir={lang === 'ar' ? 'ltr' : 'rtl'}>{lang === 'ar' ? c.name : c.nameAr}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-3 font-mono text-xs text-purple-300/60">{c.code}</td>
                     <td className="px-5 py-3">
                       {prog ? (
-                        <span className="text-xs text-purple-200/60">{prog.nameAr}</span>
+                        <span className="text-xs text-purple-200/60">{lang === 'ar' ? prog.nameAr : prog.name}</span>
                       ) : (
                         <span className="text-xs text-purple-300/30">—</span>
                       )}
@@ -1300,6 +1301,7 @@ function CompetencyStandardsTab() {
 // REPORTS TAB
 // ════════════════════════════════════════════════════════════
 function ReportsTab({ programs }: { programs: Program[] }) {
+  const { lang } = useLang();
   const academicYear = '2024-2025';
 
   return (
@@ -1315,7 +1317,7 @@ function ReportsTab({ programs }: { programs: Program[] }) {
                 <FileText className="w-4 h-4 text-brand-300" />
               </div>
               <div className="flex-1">
-                <p className="text-white text-sm font-bold">{prog.nameAr}</p>
+                <p className="text-white text-sm font-bold">{lang === 'ar' ? prog.nameAr : prog.name}</p>
                 <p className="text-purple-300/50 text-[10px] font-mono">{prog.code}</p>
               </div>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${(ACC_STATUS[prog.accreditationStatus] ?? ACC_STATUS.NONE).badge}`}>
