@@ -719,7 +719,7 @@ function CoursesTab({
 
   async function handleCreate() {
     if (!form.code || !form.nameAr || !form.name || !form.programId) {
-      setApiError('يرجى ملء جميع الحقول المطلوبة'); return;
+      setApiError(t('fillAll')); return;
     }
     setSaving(true); setApiError('');
     try {
@@ -732,7 +732,7 @@ function CoursesTab({
       setShowModal(false);
       setForm({ code: '', name: '', nameAr: '', creditHours: 3, programId: programs[0]?.id ?? '', semester: '', academicYear: '', ploIds: [] });
     } catch (e: unknown) {
-      setApiError(e instanceof Error ? e.message : 'فشل إنشاء المقرر');
+      setApiError(e instanceof Error ? e.message : t('createCourseFail'));
     } finally { setSaving(false); }
   }
 
@@ -748,7 +748,7 @@ function CoursesTab({
               style={{ background: 'linear-gradient(90deg, transparent, rgba(0,180,216,0.7), rgba(107,70,193,0.7), transparent)' }} />
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]"
               style={{ backgroundColor: 'rgba(44,22,80,0.60)' }}>
-              <h3 className="text-white font-black text-base">إضافة مقرر دراسي جديد</h3>
+              <h3 className="text-white font-black text-base">{t('addCourseTitle')}</h3>
               <div className="flex items-center gap-2">
                 <ImportExcelButton template="course" onImport={handleImport} compact />
                 <button onClick={() => { setShowModal(false); setApiError(''); }}
@@ -757,7 +757,7 @@ function CoursesTab({
             </div>
             <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">البرنامج الأكاديمي *</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('academicProgram')} *</label>
                 <select value={form.programId} onChange={e => setForm(f => ({ ...f, programId: e.target.value, ploIds: [] }))}
                   className="w-full px-4 py-2.5 rounded-xl text-white text-sm focus:outline-none"
                   style={{ backgroundColor: 'rgba(26,13,52,0.75)', border: '1px solid rgba(107,70,193,0.25)' }}>
@@ -766,7 +766,7 @@ function CoursesTab({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-purple-200/70">الاسم بالعربية *</label>
+                  <label className="text-xs font-semibold text-purple-200/70">{t('nameAr')} *</label>
                   <input value={form.nameAr} onChange={e => setForm(f => ({ ...f, nameAr: e.target.value }))}
                     placeholder="مبادئ البرمجة"
                     className="w-full px-4 py-2.5 rounded-xl text-white placeholder:text-purple-300/30 text-sm focus:outline-none"
@@ -775,7 +775,7 @@ function CoursesTab({
                     onBlur={e  => { e.target.style.borderColor = 'rgba(107,70,193,0.25)'; }} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-purple-200/70">الاسم بالإنجليزية *</label>
+                  <label className="text-xs font-semibold text-purple-200/70">{t('nameEn')} *</label>
                   <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="Introduction to Programming" dir="ltr"
                     className="w-full px-4 py-2.5 rounded-xl text-white placeholder:text-purple-300/30 text-sm focus:outline-none"
@@ -786,7 +786,7 @@ function CoursesTab({
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-purple-200/70">الكود *</label>
+                  <label className="text-xs font-semibold text-purple-200/70">{t('courseCode')} *</label>
                   <input value={form.code} onChange={e => setForm(f => ({ ...f, code: e.target.value }))}
                     placeholder="CS101" dir="ltr"
                     className="w-full px-4 py-2.5 rounded-xl text-white placeholder:text-purple-300/30 text-sm focus:outline-none font-mono"
@@ -795,7 +795,7 @@ function CoursesTab({
                     onBlur={e  => { e.target.style.borderColor = 'rgba(107,70,193,0.25)'; }} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-purple-200/70">الساعات *</label>
+                  <label className="text-xs font-semibold text-purple-200/70">{t('hours')} *</label>
                   <input type="number" min={1} max={6} value={form.creditHours}
                     onChange={e => setForm(f => ({ ...f, creditHours: Number(e.target.value) }))}
                     className="w-full px-4 py-2.5 rounded-xl text-white text-sm focus:outline-none"
@@ -804,9 +804,9 @@ function CoursesTab({
                     onBlur={e  => { e.target.style.borderColor = 'rgba(107,70,193,0.25)'; }} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-purple-200/70">الفصل</label>
+                  <label className="text-xs font-semibold text-purple-200/70">{t('semester')}</label>
                   <input value={form.semester} onChange={e => setForm(f => ({ ...f, semester: e.target.value }))}
-                    placeholder="الأول"
+                    placeholder={t('semesterPlaceholder')}
                     className="w-full px-4 py-2.5 rounded-xl text-white placeholder:text-purple-300/30 text-sm focus:outline-none"
                     style={{ backgroundColor: 'rgba(26,13,52,0.75)', border: '1px solid rgba(107,70,193,0.25)' }}
                     onFocus={e => { e.target.style.borderColor = 'rgba(0,180,216,0.55)'; }}
@@ -814,9 +814,9 @@ function CoursesTab({
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">العام الأكاديمي</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('academicYear')}</label>
                 <input value={form.academicYear} onChange={e => setForm(f => ({ ...f, academicYear: e.target.value }))}
-                  placeholder="2024-2025" dir="ltr"
+                  placeholder={t('academicYearPlaceholder')} dir="ltr"
                   className="w-full px-4 py-2.5 rounded-xl text-white placeholder:text-purple-300/30 text-sm focus:outline-none"
                   style={{ backgroundColor: 'rgba(26,13,52,0.75)', border: '1px solid rgba(107,70,193,0.25)' }}
                   onFocus={e => { e.target.style.borderColor = 'rgba(0,180,216,0.55)'; }}
@@ -864,14 +864,14 @@ function CoursesTab({
               style={{ backgroundColor: 'rgba(26,13,52,0.40)' }}>
               <button onClick={() => { setShowModal(false); setApiError(''); }}
                 className="text-xs text-purple-300/60 hover:text-white glass glass-hover px-4 py-2 rounded-xl transition">
-                إلغاء
+                {t('cancel')}
               </button>
               <button onClick={handleCreate} disabled={saving}
                 className="btn-glow flex items-center gap-1.5 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition disabled:opacity-50"
                 style={{ background: 'linear-gradient(135deg, var(--color-cyan-brand) 0%, var(--color-purple-light) 100%)' }}>
                 {saving
-                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> جارٍ الحفظ...</>
-                  : <><Plus className="w-3.5 h-3.5" /> إضافة</>}
+                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('saving')}</>
+                  : <><Plus className="w-3.5 h-3.5" /> {t('add')}</>}
               </button>
             </div>
           </div>
@@ -882,7 +882,7 @@ function CoursesTab({
         <div className="flex-1 max-w-sm relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-purple-300/40" />
           <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="بحث باسم المقرر أو الكود..."
+            placeholder={t('courseSearch')}
             className="w-full pr-9 pl-4 py-2 rounded-xl text-sm text-white placeholder:text-purple-300/30 focus:outline-none"
             style={{ backgroundColor: 'rgba(26,13,52,0.80)', border: '1px solid rgba(107,70,193,0.25)' }}
             onFocus={e => { e.target.style.borderColor = 'rgba(0,180,216,0.5)'; }}
@@ -890,18 +890,18 @@ function CoursesTab({
           />
         </div>
         <div className="text-xs text-purple-300/50 mr-auto">
-          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : `${courses.length} من ${allCount}`}
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin inline" /> : `${courses.length} ${t('ofCount')} ${allCount}`}
         </div>
         <button onClick={() => setShowModal(true)}
           className="flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl transition btn-glow flex-shrink-0"
           style={{ background: 'linear-gradient(135deg, var(--color-cyan-brand), var(--color-purple-light))' }}>
-          <Plus className="w-3.5 h-3.5" /> إضافة مقرر
+          <Plus className="w-3.5 h-3.5" /> {t('addCourse')}
         </button>
       </div>
 
       {/* Table */}
       {courses.length === 0 && !loading && (
-        <EmptyState icon={BookOpen} text="لا توجد مقررات تطابق البحث" />
+        <EmptyState icon={BookOpen} text={t('noCoursesMatch')} />
       )}
       <div className="glass rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
@@ -909,13 +909,13 @@ function CoursesTab({
             <thead>
               <tr className="border-b border-white/[0.07]"
                 style={{ backgroundColor: 'rgba(26,13,52,0.60)' }}>
-                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">المقرر</th>
-                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">الكود</th>
-                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">البرنامج</th>
-                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">الساعات</th>
-                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">الفصل</th>
-                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">CLOs</th>
-                <th className="px-5 py-3" />
+                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">{t('course')}</th>
+                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">{t('courseCode')}</th>
+                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">{t('program')}</th>
+                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">{t('hours')}</th>
+                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">{t('semester')}</th>
+                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">{t('clos')}</th>
+                <th className="text-right px-5 py-3 text-[11px] font-bold text-purple-300/60">{t('actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -1363,18 +1363,25 @@ interface ManagedUser {
   departmentAr: string; departmentEn: string; status: 'ACTIVE' | 'INACTIVE';
 }
 
-const ROLE_CATALOG: { code: string; nameAr: string; nameEn: string; badge: string }[] = [
-  { code: 'UNIVERSITY_PRESIDENT', nameAr: 'رئيس الجامعة',                          nameEn: 'University President',  badge: 'bg-violet-600/20 text-violet-300 border-violet-600/30'  },
-  { code: 'VP_ACADEMIC',          nameAr: 'نائب رئيس الجامعة للشؤون الأكاديمية',     nameEn: 'VP Academic Affairs',   badge: 'bg-brand-600/20 text-brand-300 border-brand-600/30'     },
-  { code: 'DEAN',                 nameAr: 'عميد الكلية',                           nameEn: 'College Dean',          badge: 'bg-cyan-600/20 text-cyan-300 border-cyan-600/30'        },
-  { code: 'PROGRAM_DIRECTOR',     nameAr: 'مدير البرنامج الأكاديمي',                nameEn: 'Program Director',      badge: 'bg-emerald-600/20 text-emerald-300 border-emerald-600/30' },
-  { code: 'STANDARD_OFFICER',     nameAr: 'مسؤول المعيار',                         nameEn: 'Standard Officer',      badge: 'bg-amber-600/20 text-amber-300 border-amber-600/30'     },
-  { code: 'COURSE_INSTRUCTOR',    nameAr: 'أستاذ المقرر',                          nameEn: 'Course Instructor',     badge: 'bg-slate-600/20 text-slate-300 border-slate-600/30'     },
-  { code: 'QUALITY_COORDINATOR',  nameAr: 'منسق الجودة',                           nameEn: 'Quality Coordinator',   badge: 'bg-rose-600/20 text-rose-300 border-rose-600/30'        },
+const ROLE_CATALOG: { code: string; nameAr: string; nameEn: string; badge: string; permAr: string; permEn: string }[] = [
+  { code: 'UNIVERSITY_PRESIDENT', nameAr: 'رئيس الجامعة',                          nameEn: 'University President',  badge: 'bg-violet-600/20 text-violet-300 border-violet-600/30',
+    permAr: 'التحكم الكامل بالنظام واعتماد القرارات الاستراتيجية', permEn: 'Full system control and strategic decision approval' },
+  { code: 'VP_ACADEMIC',          nameAr: 'نائب رئيس الجامعة للشؤون الأكاديمية',     nameEn: 'VP Academic Affairs',   badge: 'bg-brand-600/20 text-brand-300 border-brand-600/30',
+    permAr: 'الإشراف على جميع الشؤون الأكاديمية والبرامج عبر الكليات', permEn: 'Oversight of all academic affairs and programs across colleges' },
+  { code: 'DEAN',                 nameAr: 'عميد الكلية',                           nameEn: 'College Dean',          badge: 'bg-cyan-600/20 text-cyan-300 border-cyan-600/30',
+    permAr: 'إدارة برامج الكلية ومتابعة تقارير الاعتماد', permEn: 'Manage college programs and monitor accreditation reports' },
+  { code: 'PROGRAM_DIRECTOR',     nameAr: 'مدير البرنامج الأكاديمي',                nameEn: 'Program Director',      badge: 'bg-emerald-600/20 text-emerald-300 border-emerald-600/30',
+    permAr: 'إدارة المنهج الأكاديمي ومخرجات التعلم البرامجية (PLOs)', permEn: 'Manage curriculum and program learning outcomes (PLOs)' },
+  { code: 'STANDARD_OFFICER',     nameAr: 'مسؤول المعيار',                         nameEn: 'Standard Officer',      badge: 'bg-amber-600/20 text-amber-300 border-amber-600/30',
+    permAr: 'إدارة معايير الجدارة وعتبات الأداء', permEn: 'Manage competency standards and performance thresholds' },
+  { code: 'COURSE_INSTRUCTOR',    nameAr: 'أستاذ المقرر',                          nameEn: 'Course Instructor',     badge: 'bg-slate-600/20 text-slate-300 border-slate-600/30',
+    permAr: 'إدارة المقرر ودرجات الطلاب ومخرجات تعلم المقرر (CLOs)', permEn: 'Manage course, student grades, and course learning outcomes (CLOs)' },
+  { code: 'QUALITY_COORDINATOR',  nameAr: 'منسق الجودة',                           nameEn: 'Quality Coordinator',   badge: 'bg-rose-600/20 text-rose-300 border-rose-600/30',
+    permAr: 'مراجعة تقارير الاعتماد ومتابعة الامتثال للمعايير', permEn: 'Review accreditation reports and monitor standards compliance' },
 ];
 
 function roleInfo(code: string) {
-  return ROLE_CATALOG.find(r => r.code === code) ?? { code, nameAr: code, nameEn: code, badge: 'bg-slate-600/20 text-slate-300 border-slate-600/30' };
+  return ROLE_CATALOG.find(r => r.code === code) ?? { code, nameAr: code, nameEn: code, badge: 'bg-slate-600/20 text-slate-300 border-slate-600/30', permAr: '', permEn: '' };
 }
 
 const SEED_USERS: ManagedUser[] = [
@@ -1400,6 +1407,7 @@ function UsersPermissionsTab() {
     departmentAr: '', departmentEn: '', status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
   });
   const [formError, setFormError] = useState('');
+  const [showGuide, setShowGuide] = useState(false);
 
   const filtered = users.filter(u => {
     const matchSearch = !search || u.nameAr.includes(search) || u.nameEn.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
@@ -1503,6 +1511,16 @@ function UsersPermissionsTab() {
                   </select>
                 </div>
               </div>
+              <div className="flex items-start gap-2 rounded-xl px-3.5 py-2.5"
+                style={{ backgroundColor: 'rgba(0,180,216,0.08)', border: '1px solid rgba(0,180,216,0.22)' }}>
+                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-cyan-400 text-[11px] font-bold">{t('rolePermissions')}</p>
+                  <p className="text-purple-200/60 text-[11px] mt-0.5">
+                    {lang === 'ar' ? roleInfo(form.roleCode).permAr : roleInfo(form.roleCode).permEn}
+                  </p>
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-purple-200/70">{t('deptAr')}</label>
@@ -1539,10 +1557,37 @@ function UsersPermissionsTab() {
       )}
 
       {/* Header */}
-      <div>
-        <h2 className="text-lg font-black text-white">{t('usersPermTitle')}</h2>
-        <p className="text-purple-300/50 text-sm mt-0.5">{t('usersPermSubtitle')}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-black text-white">{t('usersPermTitle')}</h2>
+          <p className="text-purple-300/50 text-sm mt-0.5">{t('usersPermSubtitle')}</p>
+        </div>
+        <button onClick={() => setShowGuide(g => !g)}
+          className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl transition flex-shrink-0"
+          style={{ backgroundColor: 'rgba(0,180,216,0.14)', border: '1px solid rgba(0,180,216,0.30)', color: '#00B4D8' }}>
+          <ShieldCheck className="w-3.5 h-3.5" /> {t('rolePermissionsGuide')}
+        </button>
       </div>
+
+      {/* Roles & Permissions Guide */}
+      {showGuide && (
+        <div className="glass rounded-2xl overflow-hidden">
+          <div className="px-5 py-3 border-b border-white/[0.07]" style={{ backgroundColor: 'rgba(26,13,52,0.50)' }}>
+            <p className="text-white text-sm font-bold">{t('rolePermissionsGuide')}</p>
+            <p className="text-purple-300/50 text-[11px] mt-0.5">{t('rolePermissionsGuideSub')}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+            {ROLE_CATALOG.map(r => (
+              <div key={r.code} className="flex items-start gap-2.5 px-5 py-3" style={{ backgroundColor: 'rgba(26,13,52,0.35)' }}>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 mt-0.5 ${r.badge}`}>
+                  {lang === 'ar' ? r.nameAr : r.nameEn}
+                </span>
+                <p className="text-purple-200/60 text-[11px] leading-snug">{lang === 'ar' ? r.permAr : r.permEn}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
@@ -1563,7 +1608,7 @@ function UsersPermissionsTab() {
           {filtered.length} {t('userCount')}
         </span>
         <div className="flex items-center gap-2 mr-auto">
-          <ImportExcelButton template="user" onImport={handleImport} />
+          <ImportExcelButton template="user" onImport={handleImport} useModal />
           <button onClick={openAdd}
             className="flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl transition btn-glow flex-shrink-0"
             style={{ background: 'linear-gradient(135deg, var(--color-purple-light), var(--color-cyan-brand))' }}>
@@ -1594,7 +1639,8 @@ function UsersPermissionsTab() {
               {displayDept && (
                 <span className="text-[10px] text-purple-300/50 hidden md:inline-block flex-shrink-0">{displayDept}</span>
               )}
-              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex-shrink-0 ${role.badge}`}>
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex-shrink-0 ${role.badge}`}
+                title={lang === 'ar' ? role.permAr : role.permEn}>
                 {lang === 'ar' ? role.nameAr : role.nameEn}
               </span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${
@@ -1626,6 +1672,7 @@ function UsersPermissionsTab() {
 function CollegeDeptTab({
   colleges, departments, onRefresh,
 }: { colleges: College[]; departments: Department[]; onRefresh: () => void }) {
+  const { t } = useLang();
   const [saving, setSaving] = useState(false);
   const [apiError, setApiError] = useState('');
 
@@ -1666,7 +1713,7 @@ function CollegeDeptTab({
 
   async function saveCollege() {
     if (!collegeForm.nameAr || !collegeForm.name || !collegeForm.code) {
-      setApiError('يرجى ملء جميع الحقول'); return;
+      setApiError(t('fillAll')); return;
     }
     setSaving(true); setApiError('');
     try {
@@ -1677,20 +1724,20 @@ function CollegeDeptTab({
       }
       setShowCollegeModal(false);
       onRefresh();
-    } catch (e: unknown) { setApiError(e instanceof Error ? e.message : 'فشل الحفظ'); }
+    } catch (e: unknown) { setApiError(e instanceof Error ? e.message : t('saveFail')); }
     finally { setSaving(false); }
   }
 
   async function deleteCollege(id: string, deptCount: number) {
-    if (deptCount > 0) { alert('لا يمكن حذف الكلية لوجود أقسام مرتبطة بها'); return; }
-    if (!confirm('هل تريد حذف هذه الكلية؟')) return;
+    if (deptCount > 0) { alert(t('cannotDeleteCollege')); return; }
+    if (!confirm(t('deleteCollegeConfirm'))) return;
     try { await deleteCollegeApi(id); onRefresh(); }
-    catch (e: unknown) { alert(e instanceof Error ? e.message : 'فشل الحذف'); }
+    catch (e: unknown) { alert(e instanceof Error ? e.message : t('deleteFail')); }
   }
 
   async function saveDept() {
     if (!deptForm.nameAr || !deptForm.name || !deptForm.code || !deptForm.collegeId) {
-      setApiError('يرجى ملء جميع الحقول'); return;
+      setApiError(t('fillAll')); return;
     }
     setSaving(true); setApiError('');
     try {
@@ -1701,14 +1748,14 @@ function CollegeDeptTab({
       }
       setShowDeptModal(false);
       onRefresh();
-    } catch (e: unknown) { setApiError(e instanceof Error ? e.message : 'فشل الحفظ'); }
+    } catch (e: unknown) { setApiError(e instanceof Error ? e.message : t('saveFail')); }
     finally { setSaving(false); }
   }
 
   async function deleteDept(id: string) {
-    if (!confirm('هل تريد حذف هذا القسم؟')) return;
+    if (!confirm(t('deleteDeptConfirm'))) return;
     try { await deleteDepartmentApi(id); onRefresh(); }
-    catch (e: unknown) { alert(e instanceof Error ? e.message : 'فشل الحذف'); }
+    catch (e: unknown) { alert(e instanceof Error ? e.message : t('deleteFail')); }
   }
 
   const deptsByCollege = colleges.map(c => ({
@@ -1723,18 +1770,18 @@ function CollegeDeptTab({
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-black text-white">إدارات الكليات والأقسام</h3>
-          <p className="text-purple-300/50 text-xs mt-0.5">أضف أو عدّل الكليات والأقسام الأكاديمية</p>
+          <h3 className="text-base font-black text-white">{t('collegeDeptMgmt')}</h3>
+          <p className="text-purple-300/50 text-xs mt-0.5">{t('collegeDeptSubtitle')}</p>
         </div>
         <button onClick={openAddCollege}
           className="flex items-center gap-1.5 text-white text-xs font-bold px-4 py-2 rounded-xl btn-glow"
           style={{ background: 'linear-gradient(135deg, var(--color-cyan-brand), var(--color-purple-light))' }}>
-          <Plus className="w-3.5 h-3.5" /> إضافة كلية
+          <Plus className="w-3.5 h-3.5" /> {t('addCollege')}
         </button>
       </div>
 
       {colleges.length === 0 && (
-        <EmptyState icon={Building2} text="لا توجد كليات مُضافة بعد" />
+        <EmptyState icon={Building2} text={t('noColleges')} />
       )}
 
       {deptsByCollege.map(({ college, depts }) => (
@@ -1750,11 +1797,11 @@ function CollegeDeptTab({
               <p className="text-white text-sm font-bold">{college.nameAr}</p>
               <p className="text-purple-300/40 text-[10px]" dir="ltr">{college.name} · {college.code}</p>
             </div>
-            <span className="text-[10px] text-purple-300/40">{depts.length} قسم</span>
+            <span className="text-[10px] text-purple-300/40">{depts.length} {t('deptUnit')}</span>
             <button onClick={() => openAddDept(college.id)}
               className="flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition"
               style={{ background: 'rgba(0,180,216,0.15)', border: '1px solid rgba(0,180,216,0.30)', color: '#00B4D8' }}>
-              <Plus className="w-3 h-3" /> قسم
+              <Plus className="w-3 h-3" /> {t('deptShort')}
             </button>
             <button onClick={() => openEditCollege(college)}
               className="text-purple-300/50 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5">
@@ -1768,7 +1815,7 @@ function CollegeDeptTab({
 
           {/* Departments */}
           {depts.length === 0 ? (
-            <div className="px-5 py-4 text-purple-300/30 text-xs">لا توجد أقسام في هذه الكلية</div>
+            <div className="px-5 py-4 text-purple-300/30 text-xs">{t('noDepts')}</div>
           ) : (
             <div className="divide-y divide-white/[0.04]">
               {depts.map(d => (
@@ -1805,7 +1852,7 @@ function CollegeDeptTab({
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]"
               style={{ backgroundColor: 'rgba(44,22,80,0.60)' }}>
               <h3 className="text-white font-black text-base">
-                {editCollegeId ? 'تعديل الكلية' : 'إضافة كلية جديدة'}
+                {editCollegeId ? t('editCollege') : t('addCollegeTitle')}
               </h3>
               <button onClick={() => setShowCollegeModal(false)} className="text-slate-400 hover:text-white transition">
                 <X className="w-5 h-5" />
@@ -1813,19 +1860,19 @@ function CollegeDeptTab({
             </div>
             <div className="p-6 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">الاسم بالعربية *</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('nameAr')} *</label>
                 <input className={inputCls} style={inputStyle} value={collegeForm.nameAr}
                   placeholder="كلية الأعمال"
                   onChange={e => setCollegeForm(f => ({ ...f, nameAr: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">الاسم بالإنجليزية *</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('nameEn')} *</label>
                 <input className={inputCls} style={inputStyle} dir="ltr" value={collegeForm.name}
                   placeholder="College of Business"
                   onChange={e => setCollegeForm(f => ({ ...f, name: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">الكود *</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('courseCode')} *</label>
                 <input className={inputCls + ' font-mono'} style={inputStyle} dir="ltr" value={collegeForm.code}
                   placeholder="BUS"
                   onChange={e => setCollegeForm(f => ({ ...f, code: e.target.value.toUpperCase() }))} />
@@ -1841,12 +1888,12 @@ function CollegeDeptTab({
               style={{ backgroundColor: 'rgba(26,13,52,0.40)' }}>
               <button onClick={() => setShowCollegeModal(false)}
                 className="text-xs text-purple-300/60 hover:text-white glass glass-hover px-4 py-2 rounded-xl transition">
-                إلغاء
+                {t('cancel')}
               </button>
               <button onClick={saveCollege} disabled={saving}
                 className="btn-glow flex items-center gap-1.5 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition disabled:opacity-50"
                 style={{ background: 'linear-gradient(135deg, var(--color-cyan-brand) 0%, var(--color-purple-light) 100%)' }}>
-                {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> جارٍ الحفظ...</> : <><Save className="w-3.5 h-3.5" /> حفظ</>}
+                {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('saving')}</> : <><Save className="w-3.5 h-3.5" /> {t('save')}</>}
               </button>
             </div>
           </div>
@@ -1862,7 +1909,7 @@ function CollegeDeptTab({
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.07]"
               style={{ backgroundColor: 'rgba(44,22,80,0.60)' }}>
               <h3 className="text-white font-black text-base">
-                {editDeptId ? 'تعديل القسم' : 'إضافة قسم جديد'}
+                {editDeptId ? t('editDept') : t('addDeptTitle')}
               </h3>
               <button onClick={() => setShowDeptModal(false)} className="text-slate-400 hover:text-white transition">
                 <X className="w-5 h-5" />
@@ -1870,27 +1917,27 @@ function CollegeDeptTab({
             </div>
             <div className="p-6 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">الكلية *</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('collegeLabel')} *</label>
                 <select className={inputCls} style={inputStyle} value={deptForm.collegeId}
                   onChange={e => setDeptForm(f => ({ ...f, collegeId: e.target.value }))}>
-                  <option value="">— اختر كلية —</option>
+                  <option value="">{t('selectCollege')}</option>
                   {colleges.map(c => <option key={c.id} value={c.id}>{c.nameAr}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">الاسم بالعربية *</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('nameAr')} *</label>
                 <input className={inputCls} style={inputStyle} value={deptForm.nameAr}
                   placeholder="قسم المالية"
                   onChange={e => setDeptForm(f => ({ ...f, nameAr: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">الاسم بالإنجليزية *</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('nameEn')} *</label>
                 <input className={inputCls} style={inputStyle} dir="ltr" value={deptForm.name}
                   placeholder="Department of Finance"
                   onChange={e => setDeptForm(f => ({ ...f, name: e.target.value }))} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">الكود *</label>
+                <label className="text-xs font-semibold text-purple-200/70">{t('courseCode')} *</label>
                 <input className={inputCls + ' font-mono'} style={inputStyle} dir="ltr" value={deptForm.code}
                   placeholder="FIN"
                   onChange={e => setDeptForm(f => ({ ...f, code: e.target.value.toUpperCase() }))} />
@@ -1906,12 +1953,12 @@ function CollegeDeptTab({
               style={{ backgroundColor: 'rgba(26,13,52,0.40)' }}>
               <button onClick={() => setShowDeptModal(false)}
                 className="text-xs text-purple-300/60 hover:text-white glass glass-hover px-4 py-2 rounded-xl transition">
-                إلغاء
+                {t('cancel')}
               </button>
               <button onClick={saveDept} disabled={saving}
                 className="btn-glow flex items-center gap-1.5 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition disabled:opacity-50"
                 style={{ background: 'linear-gradient(135deg, var(--color-cyan-brand) 0%, var(--color-purple-light) 100%)' }}>
-                {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> جارٍ الحفظ...</> : <><Save className="w-3.5 h-3.5" /> حفظ</>}
+                {saving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('saving')}</> : <><Save className="w-3.5 h-3.5" /> {t('save')}</>}
               </button>
             </div>
           </div>
@@ -1927,31 +1974,32 @@ function CollegeDeptTab({
 function SettingsTab({ colleges, departments, onRefresh }: {
   colleges: College[]; departments: Department[]; onRefresh: () => void;
 }) {
+  const { t } = useLang();
   const [subTab, setSubTab] = useState<'system' | 'colleges'>('system');
 
   const sections = [
     {
-      title: 'معلومات الجامعة', icon: Building2, items: [
-        { label: 'اسم الجامعة (عربي)',   value: 'جامعة سليمان الراجحي' },
-        { label: 'اسم الجامعة (إنجليزي)', value: 'Sulaiman Alrajhi University' },
-        { label: 'جهة الاعتماد الرئيسية', value: 'NCAAA' },
-        { label: 'العام الأكاديمي الحالي', value: '2024-2025' },
+      title: t('uniInfo'), icon: Building2, items: [
+        { label: t('uniAr'),         value: 'جامعة سليمان الراجحي' },
+        { label: t('uniEn'),         value: 'Sulaiman Alrajhi University' },
+        { label: t('mainAccredBody'), value: 'NCAAA' },
+        { label: t('currentYear'),   value: '2024-2025' },
       ],
     },
     {
-      title: 'إعدادات الخوارزمية', icon: BarChart3, items: [
-        { label: 'وزن التقييم المباشر CLO',  value: '80%' },
-        { label: 'وزن التقييم غير المباشر', value: '20%' },
-        { label: 'نسبة الاجتياز الافتراضية', value: '70%' },
-        { label: 'الحد الأدنى للطلاب',       value: '5 طلاب' },
+      title: t('algoSettings'), icon: BarChart3, items: [
+        { label: t('directCloWeight'), value: '80%' },
+        { label: t('indirectWeight'),  value: '20%' },
+        { label: t('defaultPassRate'), value: '70%' },
+        { label: t('minStudents'),     value: `5 ${t('studentsUnit')}` },
       ],
     },
     {
-      title: 'النظام والأمان', icon: Shield, items: [
-        { label: 'إصدار النظام',     value: 'Accred-IQ v1.0.0' },
-        { label: 'قاعدة البيانات',   value: 'PostgreSQL 18' },
-        { label: 'مزود الاعتماد',    value: 'JWT / RS256' },
-        { label: 'آخر نسخ احتياطي',  value: 'اليوم 03:00 ص' },
+      title: t('security'), icon: Shield, items: [
+        { label: t('systemVersion'), value: 'Accred-IQ v1.0.0' },
+        { label: t('database'),      value: 'PostgreSQL 18' },
+        { label: t('authProvider'),  value: 'JWT / RS256' },
+        { label: t('lastBackup'),    value: t('todayBackupTime') },
       ],
     },
   ];
@@ -1963,12 +2011,12 @@ function SettingsTab({ colleges, departments, onRefresh }: {
         <button onClick={() => setSubTab('system')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${subTab === 'system' ? 'text-white' : 'text-purple-300/50 hover:text-white glass glass-hover'}`}
           style={subTab === 'system' ? { background: 'rgba(107,70,193,0.30)', border: '1px solid rgba(107,70,193,0.40)' } : {}}>
-          إعدادات النظام
+          {t('navSettings')}
         </button>
         <button onClick={() => setSubTab('colleges')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold transition ${subTab === 'colleges' ? 'text-white' : 'text-purple-300/50 hover:text-white glass glass-hover'}`}
           style={subTab === 'colleges' ? { background: 'rgba(0,180,216,0.20)', border: '1px solid rgba(0,180,216,0.35)' } : {}}>
-          إدارات الكليات والأقسام
+          {t('collegeDeptMgmt')}
         </button>
       </div>
 
@@ -1978,7 +2026,7 @@ function SettingsTab({ colleges, departments, onRefresh }: {
 
       {subTab === 'system' && (
         <div className="space-y-5 max-w-3xl">
-          <p className="text-purple-300/50 text-sm">إعدادات النظام (للقراءة فقط في هذه النسخة)</p>
+          <p className="text-purple-300/50 text-sm">{t('settingsSubtitle')}</p>
           {sections.map(sec => {
             const Icon = sec.icon;
             return (

@@ -330,6 +330,46 @@ const TRANSLATIONS = {
     saveMapping: 'حفظ الربط',
     mappingSaved: '✓ تم حفظ الربط',
     noClosForPlo: 'لا توجد مخرجات تعلم مرتبطة بعد',
+
+    // courses table
+    actions: 'إجراءات',
+    ofCount: 'من',
+
+    // settings tab
+    studentsUnit: 'طلاب',
+    todayBackupTime: 'اليوم 03:00 ص',
+
+    // college & department management
+    collegeDeptMgmt: 'إدارة الكليات والأقسام',
+    collegeDeptSubtitle: 'أضف أو عدّل الكليات والأقسام الأكاديمية',
+    addCollege: 'إضافة كلية',
+    addCollegeTitle: 'إضافة كلية جديدة',
+    editCollege: 'تعديل الكلية',
+    noColleges: 'لا توجد كليات مُضافة بعد',
+    noDepts: 'لا توجد أقسام في هذه الكلية',
+    deptUnit: 'قسم',
+    deptShort: 'قسم',
+    addDeptTitle: 'إضافة قسم جديد',
+    editDept: 'تعديل القسم',
+    collegeLabel: 'الكلية',
+    selectCollege: '— اختر كلية —',
+    deleteCollegeConfirm: 'هل تريد حذف هذه الكلية؟',
+    deleteDeptConfirm: 'هل تريد حذف هذا القسم؟',
+    cannotDeleteCollege: 'لا يمكن حذف الكلية لوجود أقسام مرتبطة بها',
+    deleteFail: 'فشل الحذف',
+
+    // excel import modal
+    importModalTitle: 'استيراد بيانات من Excel',
+    importModalDesc: 'حمّل نموذج الاستيراد الرسمي، عبّئه ببياناتك، ثم ارفعه هنا',
+    downloadTemplate: 'تحميل نموذج الاكسل',
+    dropFileHere: 'اسحب الملف هنا أو انقر للاختيار',
+    acceptedFormats: 'الصيغ المدعومة: xlsx, xls, csv',
+    selectedFile: 'الملف المحدد',
+
+    // role permissions
+    rolePermissions: 'صلاحيات الدور',
+    rolePermissionsGuide: 'دليل الأدوار والصلاحيات',
+    rolePermissionsGuideSub: 'الصلاحيات الممنوحة لكل دور وظيفي في النظام',
   },
 
   en: {
@@ -656,6 +696,46 @@ const TRANSLATIONS = {
     saveMapping: 'Save Mapping',
     mappingSaved: '✓ Mapping saved',
     noClosForPlo: 'No linked learning outcomes yet',
+
+    // courses table
+    actions: 'Actions',
+    ofCount: 'of',
+
+    // settings tab
+    studentsUnit: 'students',
+    todayBackupTime: 'Today 03:00 AM',
+
+    // college & department management
+    collegeDeptMgmt: 'College & Department Management',
+    collegeDeptSubtitle: 'Add or edit academic colleges and departments',
+    addCollege: 'Add College',
+    addCollegeTitle: 'Add New College',
+    editCollege: 'Edit College',
+    noColleges: 'No colleges added yet',
+    noDepts: 'No departments in this college',
+    deptUnit: 'dept.',
+    deptShort: 'Dept',
+    addDeptTitle: 'Add New Department',
+    editDept: 'Edit Department',
+    collegeLabel: 'College',
+    selectCollege: '— Select College —',
+    deleteCollegeConfirm: 'Delete this college?',
+    deleteDeptConfirm: 'Delete this department?',
+    cannotDeleteCollege: 'Cannot delete college — it has linked departments',
+    deleteFail: 'Delete failed',
+
+    // excel import modal
+    importModalTitle: 'Import Data from Excel',
+    importModalDesc: 'Download the official import template, fill it with your data, then upload it here',
+    downloadTemplate: 'Download Excel Template',
+    dropFileHere: 'Drag file here or click to browse',
+    acceptedFormats: 'Supported formats: xlsx, xls, csv',
+    selectedFile: 'Selected file',
+
+    // role permissions
+    rolePermissions: 'Role Permissions',
+    rolePermissionsGuide: 'Roles & Permissions Guide',
+    rolePermissionsGuideSub: 'Permissions granted to each functional role in the system',
   },
 } as const;
 
