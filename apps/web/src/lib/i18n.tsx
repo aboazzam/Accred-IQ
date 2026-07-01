@@ -120,6 +120,8 @@ const TRANSLATIONS = {
     programSearch: 'بحث باسم البرنامج أو الكود...',
     nameAr: 'الاسم بالعربية',
     nameEn: 'الاسم بالإنجليزية',
+    deptAr: 'القسم بالعربية',
+    deptEn: 'القسم بالإنجليزية',
     programCode: 'كود البرنامج',
     level: 'المستوى',
     creditHours: 'الساعات المعتمدة',
@@ -256,6 +258,10 @@ const TRANSLATIONS = {
     cardView: 'بطاقات',
     matrixView: 'مصفوفة',
     resetAll: 'إعادة الضبط',
+    resetDomain: 'إعادة ضبط',
+    savedBadge: 'محفوظ',
+    domainCol: 'مجال الجدارة',
+    sequenceWarning: 'يجب أن تتسلسل القيم بالترتيب الصحيح',
     stdNotice: 'هذه المعايير مستندة إلى إطار الجودة الوطني للهيئة الوطنية للتقويم والاعتماد الأكاديمي (NCAAA). يُنصح بمراجعة العتبات مع مجلس البرنامج قبل تطبيقها في دورة التقييم السنوية.',
 
     // reports tab
@@ -440,6 +446,8 @@ const TRANSLATIONS = {
     programSearch: 'Search by program name or code...',
     nameAr: 'Arabic Name',
     nameEn: 'English Name',
+    deptAr: 'Department (Arabic)',
+    deptEn: 'Department (English)',
     programCode: 'Program Code',
     level: 'Level',
     creditHours: 'Credit Hours',
@@ -576,6 +584,10 @@ const TRANSLATIONS = {
     cardView: 'Cards',
     matrixView: 'Matrix',
     resetAll: 'Reset All',
+    resetDomain: 'Reset',
+    savedBadge: 'Saved',
+    domainCol: 'Competency Domain',
+    sequenceWarning: 'Values must follow the correct order',
     stdNotice: 'These standards are based on the National Quality Framework of the National Commission for Academic Accreditation and Assessment (NCAAA). It is recommended to review thresholds with the program council before applying them to the annual assessment cycle.',
 
     // reports

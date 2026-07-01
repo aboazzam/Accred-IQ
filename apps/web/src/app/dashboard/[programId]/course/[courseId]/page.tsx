@@ -69,10 +69,10 @@ export default function CoursePage() {
 
         {/* Logo + course chip */}
         <div className="p-5 border-b border-white/[0.07]">
-          <Link href="/" className="flex items-center gap-3 mb-4 hover:opacity-80 transition">
-            <Image src="/logo.png" alt="SRU" width={400} height={56}
-              style={{ height: '56px', width: 'auto' }}
-              className="logo-white drop-shadow-[0_0_14px_rgba(0,180,216,0.42)] flex-shrink-0" />
+          <Link href="/" className="flex flex-col items-start gap-2.5 mb-4 hover:opacity-80 transition">
+            <Image src="/logo.png" alt="SRU" width={827} height={136}
+              style={{ height: '28px', width: 'auto', maxWidth: '100%' }}
+              className="logo-white drop-shadow-[0_0_14px_rgba(0,180,216,0.42)]" />
             <div>
               <span className="font-black text-white text-sm">Accred-IQ</span>
               <p className="text-slate-500 text-[10px] leading-none mt-0.5">جامعة سليمان الراجحي</p>

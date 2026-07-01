@@ -30,11 +30,11 @@ const LEVEL_AR: Record<string, string> = {
   BACHELOR: 'بكالوريوس', MASTER: 'ماجستير', DOCTORATE: 'دكتوراه', DIPLOMA: 'دبلوم',
 };
 
-const ACC_STATUS: Record<string, { label: string; dot: string; badge: string }> = {
-  ACCREDITED: { label: 'معتمد',    dot: 'bg-emerald-400', badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
-  CANDIDATE:  { label: 'مرشح',    dot: 'bg-cyan-400',    badge: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'    },
-  INITIAL:    { label: 'تمهيدي',  dot: 'bg-brand-400',   badge: 'bg-brand-600/20 text-brand-300 border-brand-600/30' },
-  NONE:       { label: 'غير محدد',dot: 'bg-slate-400',   badge: 'bg-slate-500/15 text-slate-400 border-slate-500/30' },
+const ACC_STATUS: Record<string, { key: TKey; dot: string; badge: string }> = {
+  ACCREDITED: { key: 'accredited', dot: 'bg-emerald-400', badge: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+  CANDIDATE:  { key: 'candidate',  dot: 'bg-cyan-400',    badge: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'    },
+  INITIAL:    { key: 'initial',    dot: 'bg-brand-400',   badge: 'bg-brand-600/20 text-brand-300 border-brand-600/30' },
+  NONE:       { key: 'none',       dot: 'bg-slate-400',   badge: 'bg-slate-500/15 text-slate-400 border-slate-500/30' },
 };
 
 const NAV_ITEMS: { id: string; icon: React.ElementType; key: TKey; color: string }[] = [
@@ -118,10 +118,10 @@ export default function AdminPage() {
 
         {/* Logo + title */}
         <div className="p-5 border-b border-white/[0.07]">
-          <Link href="/" className="flex items-center gap-3 mb-4 hover:opacity-80 transition" title={t('backToHome')}>
-            <Image src="/logo.png" alt="SRU" width={400} height={48}
-              style={{ height: '48px', width: 'auto' }}
-              className="logo-white drop-shadow-[0_0_10px_rgba(0,180,216,0.38)] flex-shrink-0" />
+          <Link href="/" className="flex flex-col items-start gap-2.5 mb-4 hover:opacity-80 transition" title={t('backToHome')}>
+            <Image src="/logo.png" alt="SRU" width={827} height={136}
+              style={{ height: '28px', width: 'auto', maxWidth: '100%' }}
+              className="logo-white drop-shadow-[0_0_10px_rgba(0,180,216,0.38)]" />
             <div className="min-w-0">
               <p className="font-black text-white text-sm leading-tight">Accred-IQ</p>
               <p className="text-purple-300/50 text-[10px] leading-tight mt-0.5">{t('adminPanel')}</p>
@@ -317,12 +317,12 @@ function OverviewTab({
             </button>
           </div>
           <div className="space-y-3">
-            {Object.entries(ACC_STATUS).map(([key, { label, dot, badge }]) => {
+            {Object.entries(ACC_STATUS).map(([key, { key: statusKey, dot, badge }]) => {
               const count = programs.filter(p => p.accreditationStatus === key).length;
               const pct   = programs.length ? Math.round(count / programs.length * 100) : 0;
               return (
                 <div key={key} className="flex items-center gap-3">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border w-16 text-center flex-shrink-0 ${badge}`}>{label}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border w-16 text-center flex-shrink-0 ${badge}`}>{t(statusKey)}</span>
                   <div className="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
                     <div className={`h-full rounded-full ${dot}`} style={{ width: `${pct}%`, opacity: 0.7 }} />
                   </div>
@@ -355,7 +355,7 @@ function OverviewTab({
                     <p className="text-white text-xs font-semibold truncate">{lang === 'ar' ? p.nameAr : p.name}</p>
                     <p className="text-purple-300/50 text-[10px] font-mono">{p.code} · {LEVEL_AR[p.level] ?? p.level}</p>
                   </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${st.badge}`}>{st.label}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${st.badge}`}>{t(st.key)}</span>
                 </Link>
               );
             })}
@@ -410,7 +410,7 @@ function ProgramsTab({
   departments: Department[];
   onAdd: (p: Program) => void;
 }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const [showModal, setShowModal] = useState(false);
   const [saving,    setSaving]    = useState(false);
   const [apiError,  setApiError]  = useState('');
@@ -611,7 +611,7 @@ function ProgramsTab({
                   style={{ background: 'rgba(107,70,193,0.25)', border: '1px solid rgba(107,70,193,0.30)' }}>
                   <GraduationCap className="w-5 h-5 text-brand-300" />
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${st.badge}`}>{st.label}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${st.badge}`}>{t(st.key)}</span>
               </div>
 
               {/* Info */}
@@ -971,23 +971,23 @@ function CoursesTab({
 
 interface DomainThresholds { excellent: number; good: number; acceptable: number; }
 interface DomainConfig {
-  key: string; nameAr: string; nameEn: string; description: string;
+  key: string; nameAr: string; nameEn: string; descriptionAr: string; descriptionEn: string;
   icon: React.ElementType; gradient: string;
   accentBg: string; accentBorder: string; accentText: string;
 }
 
 const RATING_LEVELS = [
-  { key: 'excellent',  labelAr: 'ممتاز', labelEn: 'Excellent', icon: Star,         description: 'أداء استثنائي يتجاوز التوقعات',        bgColor: 'rgba(16,185,129,0.12)',  borderColor: 'rgba(16,185,129,0.30)',  textColor: '#34d399', barColor: '#10b981', badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
-  { key: 'good',       labelAr: 'جيد',   labelEn: 'Good',       icon: TrendingUp,   description: 'أداء يلبي المتطلبات بشكل واضح',         bgColor: 'rgba(0,180,216,0.12)',   borderColor: 'rgba(0,180,216,0.30)',   textColor: '#00B4D8', barColor: '#00B4D8', badgeClass: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'          },
-  { key: 'acceptable', labelAr: 'مقبول', labelEn: 'Acceptable', icon: CheckCircle2, description: 'أداء يستوفي الحد الأدنى المطلوب',        bgColor: 'rgba(251,191,36,0.12)',  borderColor: 'rgba(251,191,36,0.30)',  textColor: '#fbbf24', barColor: '#f59e0b', badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30'       },
-  { key: 'poor',       labelAr: 'ضعيف',  labelEn: 'Poor',       icon: AlertCircle,  description: 'أداء لا يستوفي الحد الأدنى المطلوب',     bgColor: 'rgba(239,68,68,0.12)',   borderColor: 'rgba(239,68,68,0.30)',   textColor: '#f87171', barColor: '#ef4444', badgeClass: 'bg-red-500/15 text-red-400 border-red-500/30'             },
-] as const;
+  { key: 'excellent',  icon: Star,         descriptionAr: 'أداء استثنائي يتجاوز التوقعات',        descriptionEn: 'Exceptional performance that exceeds expectations',   bgColor: 'rgba(16,185,129,0.12)',  borderColor: 'rgba(16,185,129,0.30)',  textColor: '#34d399', barColor: '#10b981', badgeClass: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+  { key: 'good',       icon: TrendingUp,   descriptionAr: 'أداء يلبي المتطلبات بشكل واضح',         descriptionEn: 'Performance that clearly meets requirements',          bgColor: 'rgba(0,180,216,0.12)',   borderColor: 'rgba(0,180,216,0.30)',   textColor: '#00B4D8', barColor: '#00B4D8', badgeClass: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'          },
+  { key: 'acceptable', icon: CheckCircle2, descriptionAr: 'أداء يستوفي الحد الأدنى المطلوب',        descriptionEn: 'Performance that meets the minimum required level',    bgColor: 'rgba(251,191,36,0.12)',  borderColor: 'rgba(251,191,36,0.30)',  textColor: '#fbbf24', barColor: '#f59e0b', badgeClass: 'bg-amber-500/15 text-amber-400 border-amber-500/30'       },
+  { key: 'poor',       icon: AlertCircle,  descriptionAr: 'أداء لا يستوفي الحد الأدنى المطلوب',     descriptionEn: 'Performance that does not meet the minimum required level', bgColor: 'rgba(239,68,68,0.12)',   borderColor: 'rgba(239,68,68,0.30)',   textColor: '#f87171', barColor: '#ef4444', badgeClass: 'bg-red-500/15 text-red-400 border-red-500/30'             },
+] as const satisfies readonly { key: TKey; icon: React.ElementType; descriptionAr: string; descriptionEn: string; bgColor: string; borderColor: string; textColor: string; barColor: string; badgeClass: string }[];
 
 const DOMAIN_CONFIGS: DomainConfig[] = [
-  { key: 'KNOWLEDGE',  nameAr: 'المعرفة والفهم',           nameEn: 'Knowledge & Understanding',    description: 'قدرة الطالب على استيعاب المحتوى الأكاديمي والمفاهيم النظرية والتطبيقية',   icon: BookMarked,  gradient: 'from-brand-600 to-brand-500',  accentBg: 'rgba(107,70,193,0.15)', accentBorder: 'rgba(107,70,193,0.35)', accentText: '#A78BFA' },
-  { key: 'SKILL',      nameAr: 'المهارات المعرفية والعملية', nameEn: 'Cognitive & Practical Skills', description: 'قدرة الطالب على تطبيق المعرفة وتحليل المشكلات وتطوير حلول إبداعية',          icon: Target,      gradient: 'from-cyan-700 to-cyan-500',    accentBg: 'rgba(0,180,216,0.15)',   accentBorder: 'rgba(0,180,216,0.35)',   accentText: '#00B4D8' },
-  { key: 'ATTITUDE',   nameAr: 'القيم والمواقف المهنية',   nameEn: 'Values & Professional Ethics', description: 'التزام الطالب بالأخلاقيات المهنية والقيم الأكاديمية وتحمّل المسؤولية',       icon: Star,        gradient: 'from-violet-700 to-brand-500', accentBg: 'rgba(139,92,246,0.15)', accentBorder: 'rgba(139,92,246,0.35)', accentText: '#C4B5FD' },
-  { key: 'COMPETENCY', nameAr: 'الجدارات المهنية العامة',  nameEn: 'General Professional Competencies', description: 'مهارات التواصل والعمل الجماعي والقيادة والتطوير المهني المستمر',       icon: Award,       gradient: 'from-emerald-700 to-cyan-600', accentBg: 'rgba(16,185,129,0.15)', accentBorder: 'rgba(16,185,129,0.35)', accentText: '#34d399' },
+  { key: 'KNOWLEDGE',  nameAr: 'المعرفة والفهم',           nameEn: 'Knowledge & Understanding',    descriptionAr: 'قدرة الطالب على استيعاب المحتوى الأكاديمي والمفاهيم النظرية والتطبيقية',   descriptionEn: "The student's ability to grasp academic content and theoretical and applied concepts", icon: BookMarked,  gradient: 'from-brand-600 to-brand-500',  accentBg: 'rgba(107,70,193,0.15)', accentBorder: 'rgba(107,70,193,0.35)', accentText: '#A78BFA' },
+  { key: 'SKILL',      nameAr: 'المهارات المعرفية والعملية', nameEn: 'Cognitive & Practical Skills', descriptionAr: 'قدرة الطالب على تطبيق المعرفة وتحليل المشكلات وتطوير حلول إبداعية',          descriptionEn: "The student's ability to apply knowledge, analyze problems, and develop creative solutions", icon: Target,      gradient: 'from-cyan-700 to-cyan-500',    accentBg: 'rgba(0,180,216,0.15)',   accentBorder: 'rgba(0,180,216,0.35)',   accentText: '#00B4D8' },
+  { key: 'ATTITUDE',   nameAr: 'القيم والمواقف المهنية',   nameEn: 'Values & Professional Ethics', descriptionAr: 'التزام الطالب بالأخلاقيات المهنية والقيم الأكاديمية وتحمّل المسؤولية',       descriptionEn: "The student's commitment to professional ethics, academic values, and accountability", icon: Star,        gradient: 'from-violet-700 to-brand-500', accentBg: 'rgba(139,92,246,0.15)', accentBorder: 'rgba(139,92,246,0.35)', accentText: '#C4B5FD' },
+  { key: 'COMPETENCY', nameAr: 'الجدارات المهنية العامة',  nameEn: 'General Professional Competencies', descriptionAr: 'مهارات التواصل والعمل الجماعي والقيادة والتطوير المهني المستمر',       descriptionEn: 'Communication, teamwork, leadership, and continuous professional development skills', icon: Award,       gradient: 'from-emerald-700 to-cyan-600', accentBg: 'rgba(16,185,129,0.15)', accentBorder: 'rgba(16,185,129,0.35)', accentText: '#34d399' },
 ];
 
 const DEFAULT_THRESHOLDS: Record<string, DomainThresholds> = {
@@ -998,6 +998,7 @@ const DEFAULT_THRESHOLDS: Record<string, DomainThresholds> = {
 };
 
 function CompetencyStandardsTab() {
+  const { t, lang } = useLang();
   const [thresholds, setThresholds] = useState<Record<string, DomainThresholds>>(
     () => JSON.parse(JSON.stringify(DEFAULT_THRESHOLDS))
   );
@@ -1036,8 +1037,8 @@ function CompetencyStandardsTab() {
       {/* ── Page header ── */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-lg font-black text-white mb-1">معايير تقييم الجدارات الأكاديمية</h2>
-          <p className="text-purple-300/50 text-sm">حدِّد عتبات الأداء لكل مجال جدارة وفق معايير NCAAA</p>
+          <h2 className="text-lg font-black text-white mb-1">{t('stdTitle')}</h2>
+          <p className="text-purple-300/50 text-sm">{t('stdSubtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
           {/* View toggle */}
@@ -1046,13 +1047,13 @@ function CompetencyStandardsTab() {
               <button key={m} onClick={() => setViewMode(m)}
                 className={`px-3 py-1.5 text-xs font-semibold transition ${viewMode === m ? 'text-white' : 'text-purple-300/50 hover:text-white'}`}
                 style={viewMode === m ? { background: 'rgba(107,70,193,0.35)' } : {}}>
-                {m === 'cards' ? 'بطاقات' : 'مصفوفة'}
+                {m === 'cards' ? t('cardView') : t('matrixView')}
               </button>
             ))}
           </div>
           <button onClick={resetAll}
             className="flex items-center gap-1.5 text-xs text-purple-300/60 hover:text-white glass glass-hover px-3 py-1.5 rounded-xl transition">
-            <RotateCcw className="w-3.5 h-3.5" /> إعادة الضبط
+            <RotateCcw className="w-3.5 h-3.5" /> {t('resetAll')}
           </button>
         </div>
       </div>
@@ -1066,10 +1067,9 @@ function CompetencyStandardsTab() {
               style={{ backgroundColor: r.bgColor, border: `1px solid ${r.borderColor}` }}>
               <div className="flex items-center gap-2">
                 <Icon className="w-4 h-4 flex-shrink-0" style={{ color: r.textColor }} />
-                <span className="text-sm font-black" style={{ color: r.textColor }}>{r.labelAr}</span>
-                <span className="text-[10px] text-purple-300/35 mr-auto font-medium">{r.labelEn}</span>
+                <span className="text-sm font-black" style={{ color: r.textColor }}>{t(r.key)}</span>
               </div>
-              <p className="text-[11px] text-purple-200/50 leading-snug">{r.description}</p>
+              <p className="text-[11px] text-purple-200/50 leading-snug">{lang === 'ar' ? r.descriptionAr : r.descriptionEn}</p>
             </div>
           );
         })}
@@ -1079,11 +1079,13 @@ function CompetencyStandardsTab() {
       {viewMode === 'cards' && (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
           {DOMAIN_CONFIGS.map(domain => {
-            const t          = thresholds[domain.key];
+            const dth        = thresholds[domain.key];
             const isEditing  = editingDomain === domain.key;
-            const draft      = isEditing ? draftThresholds! : t;
+            const draft      = isEditing ? draftThresholds! : dth;
             const Icon       = domain.icon;
             const isSaved    = savedDomains.has(domain.key);
+            const primaryName   = lang === 'ar' ? domain.nameAr : domain.nameEn;
+            const secondaryName = lang === 'ar' ? domain.nameEn : domain.nameAr;
 
             return (
               <div key={domain.key} className="glass rounded-2xl overflow-hidden card-glow">
@@ -1095,13 +1097,13 @@ function CompetencyStandardsTab() {
                     <Icon className="w-[18px] h-[18px] text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-bold text-sm">{domain.nameAr}</p>
-                    <p className="text-purple-300/40 text-[10px]" dir="ltr">{domain.nameEn}</p>
+                    <p className="text-white font-bold text-sm">{primaryName}</p>
+                    <p className="text-purple-300/40 text-[10px]" dir={lang === 'ar' ? 'ltr' : 'rtl'}>{secondaryName}</p>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {isSaved && (
                       <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-semibold">
-                        <CheckCircle2 className="w-3 h-3" /> محفوظ
+                        <CheckCircle2 className="w-3 h-3" /> {t('savedBadge')}
                       </span>
                     )}
                     {isEditing ? (
@@ -1109,11 +1111,11 @@ function CompetencyStandardsTab() {
                         <button onClick={() => saveEdit(domain.key)} disabled={draftInvalid}
                           className="flex items-center gap-1 text-[11px] font-bold px-3 py-1.5 rounded-lg transition disabled:opacity-40"
                           style={{ background: 'rgba(16,185,129,0.20)', border: '1px solid rgba(16,185,129,0.40)', color: '#34d399' }}>
-                          <Save className="w-3 h-3" /> حفظ
+                          <Save className="w-3 h-3" /> {t('save')}
                         </button>
                         <button onClick={cancelEdit}
                           className="text-[11px] font-semibold px-3 py-1.5 rounded-lg glass glass-hover text-purple-300/60 hover:text-white transition">
-                          إلغاء
+                          {t('cancel')}
                         </button>
                       </>
                     ) : (
@@ -1121,10 +1123,10 @@ function CompetencyStandardsTab() {
                         <button onClick={() => startEdit(domain.key)}
                           className="flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition"
                           style={{ background: domain.accentBg, border: `1px solid ${domain.accentBorder}`, color: domain.accentText }}>
-                          <Edit className="w-3 h-3" /> تعديل
+                          <Edit className="w-3 h-3" /> {t('edit')}
                         </button>
                         <button onClick={() => resetDomain(domain.key)}
-                          className="text-purple-300/35 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5" title="إعادة ضبط">
+                          className="text-purple-300/35 hover:text-white transition p-1.5 rounded-lg hover:bg-white/5" title={t('resetDomain')}>
                           <RotateCcw className="w-3 h-3" />
                         </button>
                       </>
@@ -1133,7 +1135,7 @@ function CompetencyStandardsTab() {
                 </div>
 
                 <div className="p-5 space-y-4">
-                  <p className="text-purple-200/45 text-xs leading-relaxed">{domain.description}</p>
+                  <p className="text-purple-200/45 text-xs leading-relaxed">{lang === 'ar' ? domain.descriptionAr : domain.descriptionEn}</p>
 
                   {/* Threshold rows */}
                   <div className="space-y-2.5">
@@ -1143,7 +1145,7 @@ function CompetencyStandardsTab() {
                       return (
                         <div key={level} className="flex items-center gap-3">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border w-14 text-center flex-shrink-0 ${rating.badgeClass}`}>
-                            {rating.labelAr}
+                            {t(rating.key)}
                           </span>
                           <span className="text-purple-300/35 text-[10px] flex-shrink-0">≥</span>
 
@@ -1180,7 +1182,7 @@ function CompetencyStandardsTab() {
                     {/* Poor — auto from acceptable threshold */}
                     <div className="flex items-center gap-3">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border w-14 text-center flex-shrink-0 ${RATING_LEVELS[3].badgeClass}`}>
-                        {RATING_LEVELS[3].labelAr}
+                        {t(RATING_LEVELS[3].key)}
                       </span>
                       <span className="text-purple-300/35 text-[10px] flex-shrink-0">&lt;</span>
                       <span className="text-sm font-black w-12 flex-shrink-0" style={{ color: RATING_LEVELS[3].textColor }}>
@@ -1199,7 +1201,7 @@ function CompetencyStandardsTab() {
                     <div className="flex items-center gap-2 text-amber-300 text-[11px] font-medium px-3 py-2 rounded-xl"
                       style={{ backgroundColor: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.25)' }}>
                       <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                      يجب أن تتسلسل بشكل صحيح: ممتاز &gt; جيد &gt; مقبول
+                      {t('sequenceWarning')}: {t('excellent')} &gt; {t('good')} &gt; {t('acceptable')}
                     </div>
                   )}
                 </div>
@@ -1216,11 +1218,10 @@ function CompetencyStandardsTab() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.07]" style={{ backgroundColor: 'rgba(26,13,52,0.65)' }}>
-                  <th className="text-right px-5 py-3.5 text-[11px] font-bold text-purple-300/60 min-w-[200px]">مجال الجدارة</th>
+                  <th className="text-right px-5 py-3.5 text-[11px] font-bold text-purple-300/60 min-w-[200px]">{t('domainCol')}</th>
                   {RATING_LEVELS.map(r => (
                     <th key={r.key} className="text-center px-5 py-3.5 text-[11px] font-bold whitespace-nowrap" style={{ color: r.textColor }}>
-                      {r.labelAr}
-                      <span className="block text-[9px] font-medium opacity-50">{r.labelEn}</span>
+                      {t(r.key)}
                     </th>
                   ))}
                   <th className="px-4 py-3.5 w-12" />
@@ -1228,8 +1229,10 @@ function CompetencyStandardsTab() {
               </thead>
               <tbody>
                 {DOMAIN_CONFIGS.map((domain, i) => {
-                  const t    = thresholds[domain.key];
+                  const dth  = thresholds[domain.key];
                   const Icon = domain.icon;
+                  const primaryName   = lang === 'ar' ? domain.nameAr : domain.nameEn;
+                  const secondaryName = lang === 'ar' ? domain.nameEn : domain.nameAr;
                   return (
                     <tr key={domain.key} className="border-b border-white/[0.04] hover:bg-white/[0.03] transition"
                       style={i % 2 !== 0 ? { backgroundColor: 'rgba(26,13,52,0.25)' } : {}}>
@@ -1239,34 +1242,34 @@ function CompetencyStandardsTab() {
                             <Icon className="w-4 h-4 text-white" />
                           </div>
                           <div>
-                            <p className="text-white text-xs font-bold">{domain.nameAr}</p>
-                            <p className="text-purple-300/40 text-[10px]" dir="ltr">{domain.nameEn}</p>
+                            <p className="text-white text-xs font-bold">{primaryName}</p>
+                            <p className="text-purple-300/40 text-[10px]" dir={lang === 'ar' ? 'ltr' : 'rtl'}>{secondaryName}</p>
                           </div>
                         </div>
                       </td>
                       {/* Excellent */}
                       <td className="px-5 py-4 text-center">
                         <span className="inline-block text-sm font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg">
-                          ≥ {t.excellent}%
+                          ≥ {dth.excellent}%
                         </span>
                       </td>
                       {/* Good */}
                       <td className="px-5 py-4 text-center">
                         <span className="inline-block text-sm font-black px-3 py-1 rounded-lg"
                           style={{ color: '#00B4D8', backgroundColor: 'rgba(0,180,216,0.10)' }}>
-                          {t.good}–{t.excellent - 1}%
+                          {dth.good}–{dth.excellent - 1}%
                         </span>
                       </td>
                       {/* Acceptable */}
                       <td className="px-5 py-4 text-center">
                         <span className="inline-block text-sm font-black text-amber-400 bg-amber-500/10 px-3 py-1 rounded-lg">
-                          {t.acceptable}–{t.good - 1}%
+                          {dth.acceptable}–{dth.good - 1}%
                         </span>
                       </td>
                       {/* Poor */}
                       <td className="px-5 py-4 text-center">
                         <span className="inline-block text-sm font-black text-red-400 bg-red-500/10 px-3 py-1 rounded-lg">
-                          &lt; {t.acceptable}%
+                          &lt; {dth.acceptable}%
                         </span>
                       </td>
                       <td className="px-4 py-4">
@@ -1289,8 +1292,7 @@ function CompetencyStandardsTab() {
         style={{ borderColor: 'rgba(107,70,193,0.25)' }}>
         <Shield className="w-4 h-4 text-brand-300 flex-shrink-0 mt-0.5" />
         <p className="text-purple-200/45 text-xs leading-relaxed">
-          هذه المعايير مستندة إلى إطار الجودة الوطني للهيئة الوطنية للتقويم والاعتماد الأكاديمي (NCAAA).
-          يُنصح بمراجعة العتبات مع مجلس البرنامج قبل تطبيقها في دورة التقييم السنوية.
+          {t('stdNotice')}
         </p>
       </div>
     </div>
@@ -1301,15 +1303,17 @@ function CompetencyStandardsTab() {
 // REPORTS TAB
 // ════════════════════════════════════════════════════════════
 function ReportsTab({ programs }: { programs: Program[] }) {
-  const { lang } = useLang();
+  const { lang, t } = useLang();
   const academicYear = '2024-2025';
 
   return (
     <div className="space-y-6">
-      <p className="text-purple-300/50 text-sm">تنزيل تقارير الاعتماد التلقائية لكل برنامج أو مقرر</p>
+      <p className="text-purple-300/50 text-sm">{t('reportsSubtitle')}</p>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {programs.map(prog => (
+        {programs.map(prog => {
+          const st = ACC_STATUS[prog.accreditationStatus] ?? ACC_STATUS.NONE;
+          return (
           <div key={prog.id} className="glass glass-hover card-glow rounded-2xl p-5">
             <div className="flex items-start gap-3 mb-4">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -1320,8 +1324,8 @@ function ReportsTab({ programs }: { programs: Program[] }) {
                 <p className="text-white text-sm font-bold">{lang === 'ar' ? prog.nameAr : prog.name}</p>
                 <p className="text-purple-300/50 text-[10px] font-mono">{prog.code}</p>
               </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${(ACC_STATUS[prog.accreditationStatus] ?? ACC_STATUS.NONE).badge}`}>
-                {(ACC_STATUS[prog.accreditationStatus] ?? ACC_STATUS.NONE).label}
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex-shrink-0 ${st.badge}`}>
+                {t(st.key)}
               </span>
             </div>
 
@@ -1332,19 +1336,20 @@ function ReportsTab({ programs }: { programs: Program[] }) {
                 style={{ backgroundColor: 'rgba(0,180,216,0.15)', border: '1px solid rgba(0,180,216,0.30)', color: '#00B4D8' }}
                 onMouseEnter={e => { (e.target as HTMLElement).style.backgroundColor = 'rgba(0,180,216,0.25)'; }}
                 onMouseLeave={e => { (e.target as HTMLElement).style.backgroundColor = 'rgba(0,180,216,0.15)'; }}>
-                <Download className="w-3 h-3" /> تقرير PLO Attainment
+                <Download className="w-3 h-3" /> {t('ploAttainmentReport')}
               </a>
               <Link href={`/dashboard/${prog.id}?tab=attainment`}
                 className="flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition"
                 style={{ backgroundColor: 'rgba(107,70,193,0.15)', border: '1px solid rgba(107,70,193,0.30)', color: '#A78BFA' }}>
-                <BarChart3 className="w-3 h-3" /> عرض تفصيلي
+                <BarChart3 className="w-3 h-3" /> {t('detailedView')}
               </Link>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
-      {programs.length === 0 && <EmptyState icon={FileText} text="لا توجد برامج لعرض تقاريرها" />}
+      {programs.length === 0 && <EmptyState icon={FileText} text={t('noReports')} />}
     </div>
   );
 }
@@ -1354,8 +1359,8 @@ function ReportsTab({ programs }: { programs: Program[] }) {
 // ════════════════════════════════════════════════════════════
 
 interface ManagedUser {
-  id: string; name: string; email: string; roleCode: string;
-  department: string; status: 'ACTIVE' | 'INACTIVE';
+  id: string; nameAr: string; nameEn: string; email: string; roleCode: string;
+  departmentAr: string; departmentEn: string; status: 'ACTIVE' | 'INACTIVE';
 }
 
 const ROLE_CATALOG: { code: string; nameAr: string; nameEn: string; badge: string }[] = [
@@ -1373,14 +1378,14 @@ function roleInfo(code: string) {
 }
 
 const SEED_USERS: ManagedUser[] = [
-  { id: 'u1', name: 'د. عبدالله الحربي', email: 'a.alharbi@sru.edu.sa',   roleCode: 'UNIVERSITY_PRESIDENT', department: 'مكتب رئيس الجامعة',  status: 'ACTIVE' },
-  { id: 'u2', name: 'د. منيرة السبيعي',  email: 'm.alsubaie@sru.edu.sa',  roleCode: 'VP_ACADEMIC',          department: 'نيابة الشؤون الأكاديمية', status: 'ACTIVE' },
-  { id: 'u3', name: 'د. فهد العنزي',     email: 'f.alanazi@sru.edu.sa',   roleCode: 'DEAN',                 department: 'كلية علوم الحاسب',   status: 'ACTIVE' },
-  { id: 'u4', name: 'د. هند الدوسري',    email: 'h.aldosari@sru.edu.sa',  roleCode: 'PROGRAM_DIRECTOR',     department: 'قسم علوم الحاسب',    status: 'ACTIVE' },
-  { id: 'u5', name: 'أ. ماجد القرني',    email: 'm.alqarni@sru.edu.sa',   roleCode: 'STANDARD_OFFICER',     department: 'عمادة الجودة',       status: 'ACTIVE' },
-  { id: 'u6', name: 'د. ريم الشهري',     email: 'r.alshehri@sru.edu.sa',  roleCode: 'COURSE_INSTRUCTOR',    department: 'قسم علوم الحاسب',    status: 'ACTIVE' },
-  { id: 'u7', name: 'أ. بندر المطيري',   email: 'b.almutairi@sru.edu.sa', roleCode: 'QUALITY_COORDINATOR',  department: 'عمادة الجودة',       status: 'INACTIVE' },
-  { id: 'u8', name: 'د. لمياء الغامدي',  email: 'l.alghamdi@sru.edu.sa',  roleCode: 'COURSE_INSTRUCTOR',    department: 'قسم الرياضيات',      status: 'ACTIVE' },
+  { id: 'u1', nameAr: 'د. عبدالله الحربي', nameEn: 'Dr. Abdullah Al-Harbi', email: 'a.alharbi@sru.edu.sa',   roleCode: 'UNIVERSITY_PRESIDENT', departmentAr: 'مكتب رئيس الجامعة',       departmentEn: 'Office of the University President',      status: 'ACTIVE' },
+  { id: 'u2', nameAr: 'د. منيرة السبيعي',  nameEn: 'Dr. Munira Al-Subaie',  email: 'm.alsubaie@sru.edu.sa',  roleCode: 'VP_ACADEMIC',          departmentAr: 'نيابة الشؤون الأكاديمية', departmentEn: 'Vice Presidency for Academic Affairs',     status: 'ACTIVE' },
+  { id: 'u3', nameAr: 'د. فهد العنزي',     nameEn: 'Dr. Fahad Al-Anazi',    email: 'f.alanazi@sru.edu.sa',   roleCode: 'DEAN',                 departmentAr: 'كلية علوم الحاسب',        departmentEn: 'College of Computer Science',              status: 'ACTIVE' },
+  { id: 'u4', nameAr: 'د. هند الدوسري',    nameEn: 'Dr. Hind Al-Dosari',    email: 'h.aldosari@sru.edu.sa',  roleCode: 'PROGRAM_DIRECTOR',     departmentAr: 'قسم علوم الحاسب',         departmentEn: 'Department of Computer Science',           status: 'ACTIVE' },
+  { id: 'u5', nameAr: 'أ. ماجد القرني',    nameEn: 'Mr. Majed Al-Qarni',    email: 'm.alqarni@sru.edu.sa',   roleCode: 'STANDARD_OFFICER',     departmentAr: 'عمادة الجودة',            departmentEn: 'Deanship of Quality',                      status: 'ACTIVE' },
+  { id: 'u6', nameAr: 'د. ريم الشهري',     nameEn: 'Dr. Reem Al-Shehri',    email: 'r.alshehri@sru.edu.sa',  roleCode: 'COURSE_INSTRUCTOR',    departmentAr: 'قسم علوم الحاسب',         departmentEn: 'Department of Computer Science',           status: 'ACTIVE' },
+  { id: 'u7', nameAr: 'أ. بندر المطيري',   nameEn: 'Mr. Bandar Al-Mutairi', email: 'b.almutairi@sru.edu.sa', roleCode: 'QUALITY_COORDINATOR',  departmentAr: 'عمادة الجودة',            departmentEn: 'Deanship of Quality',                      status: 'INACTIVE' },
+  { id: 'u8', nameAr: 'د. لمياء الغامدي',  nameEn: 'Dr. Lamia Al-Ghamdi',   email: 'l.alghamdi@sru.edu.sa',  roleCode: 'COURSE_INSTRUCTOR',    departmentAr: 'قسم الرياضيات',           departmentEn: 'Department of Mathematics',                status: 'ACTIVE' },
 ];
 
 function UsersPermissionsTab() {
@@ -1391,32 +1396,33 @@ function UsersPermissionsTab() {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState({
-    name: '', email: '', roleCode: ROLE_CATALOG[5].code, department: '', status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
+    nameAr: '', nameEn: '', email: '', roleCode: ROLE_CATALOG[5].code,
+    departmentAr: '', departmentEn: '', status: 'ACTIVE' as 'ACTIVE' | 'INACTIVE',
   });
   const [formError, setFormError] = useState('');
 
   const filtered = users.filter(u => {
-    const matchSearch = !search || u.name.includes(search) || u.email.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || u.nameAr.includes(search) || u.nameEn.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
     const matchRole = roleFilter === 'ALL' || u.roleCode === roleFilter;
     return matchSearch && matchRole;
   });
 
   function openAdd() {
     setEditId(null);
-    setForm({ name: '', email: '', roleCode: ROLE_CATALOG[5].code, department: '', status: 'ACTIVE' });
+    setForm({ nameAr: '', nameEn: '', email: '', roleCode: ROLE_CATALOG[5].code, departmentAr: '', departmentEn: '', status: 'ACTIVE' });
     setFormError('');
     setShowModal(true);
   }
 
   function openEdit(u: ManagedUser) {
     setEditId(u.id);
-    setForm({ name: u.name, email: u.email, roleCode: u.roleCode, department: u.department, status: u.status });
+    setForm({ nameAr: u.nameAr, nameEn: u.nameEn, email: u.email, roleCode: u.roleCode, departmentAr: u.departmentAr, departmentEn: u.departmentEn, status: u.status });
     setFormError('');
     setShowModal(true);
   }
 
   function handleSave() {
-    if (!form.name || !form.email) { setFormError(t('fillAll')); return; }
+    if (!form.nameAr || !form.email) { setFormError(t('fillAll')); return; }
     if (editId) {
       setUsers(prev => prev.map(u => u.id === editId ? { ...u, ...form } : u));
     } else {
@@ -1432,7 +1438,8 @@ function UsersPermissionsTab() {
 
   function handleImport(rows: ExcelUserRow[]) {
     const imported: ManagedUser[] = rows.map(r => ({
-      id: crypto.randomUUID(), name: r.name, email: r.email, roleCode: r.roleCode, department: r.department, status: 'ACTIVE',
+      id: crypto.randomUUID(), nameAr: r.name, nameEn: r.name, email: r.email, roleCode: r.roleCode,
+      departmentAr: r.department, departmentEn: r.department, status: 'ACTIVE',
     }));
     setUsers(prev => [...imported, ...prev]);
   }
@@ -1457,11 +1464,19 @@ function UsersPermissionsTab() {
                 className="text-slate-400 hover:text-white transition"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-6 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">{t('userName')} *</label>
-                <input className={inputCls} style={inputStyle} value={form.name}
-                  placeholder="د. عبدالعزيز المالكي"
-                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-purple-200/70">{t('userName')} ({t('nameAr')}) *</label>
+                  <input className={inputCls} style={inputStyle} value={form.nameAr}
+                    placeholder="د. عبدالعزيز المالكي"
+                    onChange={e => setForm(f => ({ ...f, nameAr: e.target.value }))} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-purple-200/70">{t('userName')} ({t('nameEn')})</label>
+                  <input className={inputCls} style={inputStyle} dir="ltr" value={form.nameEn}
+                    placeholder="Dr. Abdulaziz Al-Malki"
+                    onChange={e => setForm(f => ({ ...f, nameEn: e.target.value }))} />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-purple-200/70">{t('userEmail')} *</label>
@@ -1488,11 +1503,19 @@ function UsersPermissionsTab() {
                   </select>
                 </div>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-purple-200/70">{t('userDept')}</label>
-                <input className={inputCls} style={inputStyle} value={form.department}
-                  placeholder="قسم علوم الحاسب"
-                  onChange={e => setForm(f => ({ ...f, department: e.target.value }))} />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-purple-200/70">{t('deptAr')}</label>
+                  <input className={inputCls} style={inputStyle} value={form.departmentAr}
+                    placeholder="قسم علوم الحاسب"
+                    onChange={e => setForm(f => ({ ...f, departmentAr: e.target.value }))} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-purple-200/70">{t('deptEn')}</label>
+                  <input className={inputCls} style={inputStyle} dir="ltr" value={form.departmentEn}
+                    placeholder="Department of Computer Science"
+                    onChange={e => setForm(f => ({ ...f, departmentEn: e.target.value }))} />
+                </div>
               </div>
               {formError && (
                 <div className="rounded-xl px-4 py-2.5 text-red-300 text-xs"
@@ -1554,20 +1577,22 @@ function UsersPermissionsTab() {
       <div className="space-y-2">
         {filtered.map(u => {
           const role = roleInfo(u.roleCode);
+          const displayName = lang === 'ar' ? u.nameAr : (u.nameEn || u.nameAr);
+          const displayDept = lang === 'ar' ? u.departmentAr : (u.departmentEn || u.departmentAr);
           return (
             <div key={u.id} className="glass glass-hover rounded-2xl px-5 py-3.5 flex items-center gap-4">
               <div className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm flex-shrink-0"
                 style={{ background: 'linear-gradient(135deg, var(--color-purple-light), var(--color-cyan-brand))' }}>
-                {u.name.charAt(0)}
+                {displayName.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-white font-semibold text-sm truncate">{u.name}</p>
+                <p className="text-white font-semibold text-sm truncate">{displayName}</p>
                 <p className="text-purple-300/50 text-xs flex items-center gap-1" dir="ltr">
                   <Mail className="w-3 h-3" /> {u.email}
                 </p>
               </div>
-              {u.department && (
-                <span className="text-[10px] text-purple-300/50 hidden md:inline-block flex-shrink-0">{u.department}</span>
+              {displayDept && (
+                <span className="text-[10px] text-purple-300/50 hidden md:inline-block flex-shrink-0">{displayDept}</span>
               )}
               <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border flex-shrink-0 ${role.badge}`}>
                 {lang === 'ar' ? role.nameAr : role.nameEn}
